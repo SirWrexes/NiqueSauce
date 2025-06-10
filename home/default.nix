@@ -57,9 +57,8 @@
       userEmail = "ludofernandez@msn.com";
       extraConfig = {
         init.defaultBranch = "main";
-      };
-    }
-    // keySetting;
+      } // keySetting;
+    };
 
   # Restart services on build
   systemd.user.startServices = "sd-switch";
