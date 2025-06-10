@@ -30,7 +30,7 @@ workspaces
   "$mod, RETURN, exec, kitty"
 
   # Open set default browser
-  ", XF86HomePage, exec, $BROWSER"
+  ", XF86HomePage, exec, firefox"
 
   # Open Discord
   ", XF86Mail, exec, vesktop"
