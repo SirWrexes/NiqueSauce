@@ -39,11 +39,6 @@
   # boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "houston"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -126,27 +121,21 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # Fish needs to be available as a system package since it's used as a login shell
+  programs.fish.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Define a user account
   users.users.wrexes = {
     isNormalUser = true;
     description = "Sir Wrexes";
+    shell = pkgs.fish;
     extraGroups = [
       "networkmanager"
       "wheel"
     ];
-    packages = with pkgs; [
-    ];
+    packages = with pkgs; [ ];
   };
 
   # Allow unfree packages
@@ -155,11 +144,7 @@
   # Install firefox.
   programs.firefox.enable = true;
 
-  # Enable .direnv at the system level to handle per-machine secrets during install
-  programs.direnv.enable = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     jq
     fd
@@ -191,25 +176,6 @@
       set tabstop=2
     '';
   };
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
