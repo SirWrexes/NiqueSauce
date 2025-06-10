@@ -1,7 +1,10 @@
-{ config, pkgs, nix-colors, ... }:
+{
+  config,
+  pkgs,
+  nix-colors,
+  ...
+}@inputs:
 
 {
-  programs.neovim.plugins = [
-    import ./colorScheme.nix { inherit nix-colors; scheme = config.colorScheme; }
-  ];
+  programs.neovim.plugins = builtins.map (plugin: import plugin inputs) [ ./colorScheme.nix ];
 }

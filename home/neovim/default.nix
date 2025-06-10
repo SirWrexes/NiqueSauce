@@ -3,7 +3,7 @@
 {
   programs.neovim.enable = true;
 
-  # imports = [ ./plugins ];
+  imports = [ ./plugins ];
 
   programs.neovim = {
     defaultEditor = true;
