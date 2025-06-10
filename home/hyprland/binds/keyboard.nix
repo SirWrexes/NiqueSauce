@@ -21,7 +21,7 @@ in
 workspaces
 ++ [
   # Terminate the current session
-  "$mod, Q, exit" # TODO use uwsm
+  "$mod, Q, exec, uwsm stop"
 
   # Lock session
   "$mod, L, exec, hyprlock"
