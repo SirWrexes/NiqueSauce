@@ -40,25 +40,15 @@
       variant = "dark";
     };
 
-  programs.git =
-    let
-      keyPath = builtins.getEnv "PRIVATE_SSH_KEY";
-      keySetting =
-        if keyPath != "" then
-          {
-            core.sshCommand = "ssh -i ${keyPath}";
-          }
-        else
-          { };
-    in
-    {
-      enable = true;
-      userName = "Sir Wrexes";
-      userEmail = "ludofernandez@msn.com";
-      extraConfig = {
-        init.defaultBranch = "main";
-      } // keySetting;
+  programs.git = {
+    enable = true;
+    userName = "Sir Wrexes";
+    userEmail = "ludofernandez@msn.com";
+    extraConfig = {
+      init.defaultBranch = "main";
+      core.sshCommand = "ssh -i ~/.ssh/id_ed25519";
     };
+  };
 
   # Restart services on build
   systemd.user.startServices = "sd-switch";
