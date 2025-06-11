@@ -4,6 +4,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = false; # see https://wiki.hyprland.org/Useful-Utilities/Systemd-start/#installation
+    systemd.variables = pkgs.lib.attrsets.mapAttrsToList (name: value: name);
   };
 
   # Hint Electron apps to use native Wayland support
