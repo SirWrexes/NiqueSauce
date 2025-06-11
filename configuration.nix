@@ -35,6 +35,9 @@
   # For now, NVidia fails building on 6.15, so I'm pinning 6.14 until it's fixed
   boot.kernelPackages = pkgs.linuxPackages_6_14;
 
+  programs.zsh.enable = true;
+  users.defaultUserShell = pkgs.zsh;
+
   # Use latest kernel.
   # boot.kernelPackages = pkgs.linuxPackages_latest;
 
