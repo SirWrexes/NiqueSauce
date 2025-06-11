@@ -6,9 +6,10 @@
   programs.fish.enable = false;
 
   programs.fish = {
-    plugins = import ./plugins;
+    # plugins = import ./plugins;
     generateCompletions = true;
-    interactiveShellInit =
+    preferAbbrs = true;
+    shellInit =
       let
         inherit (pkgs.lib.meta) getExe;
       in
