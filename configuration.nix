@@ -23,7 +23,6 @@
 
   # Bootloader.
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.enable = false;
   boot.loader.grub = {
     enable = true;
     device = "nodev";
@@ -139,6 +138,7 @@
 
   # Define a user account
   users.users.wrexes = {
+    initialPassword = "sucepute";
     isNormalUser = true;
     description = "Sir Wrexes";
     useDefaultShell = true;
@@ -170,23 +170,6 @@
 
     nixfmt-rfc-style
   ];
-
-  # The superior editor
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    withNodeJs = true;
-    withPython3 = true;
-    withRuby = true;
-    viAlias = true;
-    vimAlias = true;
-    configure.customRC = ''
-      set relativenumber
-      set expandtab
-      set shiftwidth=2
-      set tabstop=2
-    '';
-  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
