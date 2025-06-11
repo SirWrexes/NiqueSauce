@@ -1,12 +1,14 @@
 let
+  inherit (builtins) concatLists genList;
+
   # Moving focus/windows across workspaces
   workspaces =
     [
       "$mod,        0, workspace      , 10"
       "SUPER_SHIFT, 0, movetoworkspace, 10"
     ]
-    ++ builtins.concatLists (
-      builtins.genList (
+    ++ concatLists (
+      genList (
         i:
         let
           ws = i + 1;
