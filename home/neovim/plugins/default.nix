@@ -6,5 +6,5 @@
 }@inputs:
 
 {
-  programs.neovim.plugins = builtins.map (plugin: import plugin inputs) [ ./colorScheme.nix ];
+  programs.neovim.plugins = map (plugin: import plugin inputs) [ ./colorScheme.nix ];
 }
