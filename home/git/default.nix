@@ -20,8 +20,8 @@ in
     extraConfig = {
       init.defaultBranch = "main";
       core.sshCommand = "ssh -i ~/.ssh/id_ed25519";
+      color.ui = true;
     };
-    color.ui = true;
   };
 
   programs.git.aliases =
