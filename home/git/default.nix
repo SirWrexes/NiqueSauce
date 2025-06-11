@@ -33,7 +33,7 @@ in
       pager = "${getExe pkgs.bat}"; # TODO: Make an option
       grep = "${getExe pkgs.ripgrep}"; # TODO: Make an option
       git = "${getExe pkgs.git}";
-      wc = "${getExe' pkgs.coreutils-full wc}";
+      wc = "${getExe' pkgs.coreutils-full "wc"}";
 
       format = {
         options =
