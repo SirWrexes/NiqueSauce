@@ -27,7 +27,7 @@
     enable = true;
     device = "nodev";
     efiSupport = true;
-    gfxmodeEfi = "auto";
+    gfxmodeEfi = "3440x1440";
     theme = pkgs.catppuccin-grub;
   };
 
