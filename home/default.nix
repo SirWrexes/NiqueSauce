@@ -38,16 +38,13 @@ in
 
   programs.nh = {
     enable = true;
-    flake = ./flake.nix;
+    flake = "$HOME/.nixos";
   };
 
   services.cliphist = {
     enable = true;
     allowImages = true;
   };
-
-  # Restart services on build
-  systemd.user.startServices = "sd-switch";
 
   # DON'T TOUCH THAT
   home.stateVersion = "25.05";
