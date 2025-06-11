@@ -14,6 +14,7 @@
 
     # CLI
     ./shell
+    ./git
     ./neovim
 
     # GUI
@@ -31,24 +32,7 @@
       stateVersion = "25.05";
     };
 
-  colorScheme =
-    let
-      contrib = nix-colors.lib.contrib { inherit pkgs; };
-    in
-    contrib.colorSchemeFromPicture {
-      path = ./color-scheme-image.jpg;
-      variant = "dark";
-    };
-
-  programs.git = {
-    enable = true;
-    userName = "Sir Wrexes";
-    userEmail = "ludofernandez@msn.com";
-    extraConfig = {
-      init.defaultBranch = "main";
-      core.sshCommand = "ssh -i ~/.ssh/id_ed25519";
-    };
-  };
+  colorScheme = nix-colors.colorSchemes.black-metal-bathory;
 
   # Restart services on build
   systemd.user.startServices = "sd-switch";
