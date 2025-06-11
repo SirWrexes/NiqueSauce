@@ -9,9 +9,6 @@
   imports = [
     nix-colors.homeManagerModules.default
 
-    # System
-    ./env.nix
-
     # CLI
     ./shell
     ./git
