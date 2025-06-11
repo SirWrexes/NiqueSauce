@@ -5,7 +5,7 @@
 
   programs.starship.settings = {
     directory.style = "bold fg:#f08000";
-    
+
     git_branch.style = "bold fg:#c40f4b";
 
     git_status = {

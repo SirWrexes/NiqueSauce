@@ -1,13 +1,12 @@
 { config, pkgs, ... }:
 
 {
-  programs.fish.enable = true;
-
   imports = [ ./prompt.nix ];
+
+  programs.fish.enable = false;
 
   programs.fish = {
     plugins = import ./plugins;
-
     generateCompletions = true;
   };
 }

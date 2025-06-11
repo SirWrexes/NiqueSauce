@@ -35,8 +35,19 @@
   # For now, NVidia fails building on 6.15, so I'm pinning 6.14 until it's fixed
   boot.kernelPackages = pkgs.linuxPackages_6_14;
 
-  programs.zsh.enable = true;
-  users.defaultUserShell = pkgs.zsh;
+  # See https://nixos.wiki/wiki/Fish
+  # Section: Setting fish as your shell
+  users.defaultUserShell = pkgs.bash;
+  programs.fish.enable = true;
+  programs.bash = {
+    interactiveShellInit = ''
+      if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING}  && "$LOGNAME" = "wrexes" ]]
+      then
+        shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
+        exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
+      fi
+    '';
+  };
 
   # Use latest kernel.
   # boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -126,14 +137,11 @@
     pulse.enable = true;
   };
 
-  # Fish needs to be available as a system package since it's used as a login shell
-  programs.fish.enable = true;
-
   # Define a user account
   users.users.wrexes = {
     isNormalUser = true;
     description = "Sir Wrexes";
-    shell = pkgs.fish;
+    useDefaultShell = true;
     extraGroups = [
       "networkmanager"
       "wheel"
