@@ -42,6 +42,7 @@
         let
           inherit (pkgs) writeTextFile;
           inherit (pkgs.lib.attrsets) filterAttrs;
+          inherit (pkgs.lib.meta) getExe;
 
           toINI = pkgs.lib.generators.toINI { };
 
@@ -50,7 +51,7 @@
             text = toINI { delta = filterAttrs (name: value: name != "side-by-side") deltaOptions; };
           };
         in
-        "${pkgs.delta}/bin/delta --paging=never --config=${config}";
+        "${getExe pkgs.delta} --paging=never --config=${config}";
     };
   };
 }

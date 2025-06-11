@@ -28,11 +28,12 @@ in
     with config.colorScheme.palette;
     let
       inherit (pkgs.lib) strings;
+      inherit (pkgs.lib.meta) getExe getExe';
 
-      pager = "${pkgs.bat}/bin/bat"; # TODO: Make an option
-      grep = "${pkgs.ripgrep}/bin/rg"; # TODO: Make an option
-      git = "${pkgs.git}/bin/git";
-      wc = "${pkgs.coreutils-full}/bin/wc";
+      pager = "${getExe pkgs.bat}"; # TODO: Make an option
+      grep = "${getExe pkgs.ripgrep}"; # TODO: Make an option
+      git = "${getExe pkgs.git}";
+      wc = "${getExe' pkgs.coreutils-full wc}";
 
       format = {
         options =
