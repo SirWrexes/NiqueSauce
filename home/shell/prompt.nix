@@ -1,7 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  programs.starship.enable = true;
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+  };
 
   programs.starship.settings = {
     directory.style = "bold fg:#f08000";
