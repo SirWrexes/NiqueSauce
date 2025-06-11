@@ -23,6 +23,8 @@ in
     ./discord.nix
   ];
 
+  programs.home-manager.enable = true;
+
   colorScheme = nix-colors.colorSchemes.black-metal-bathory;
 
   home = {
