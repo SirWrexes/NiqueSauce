@@ -34,6 +34,11 @@ in
     packages = with pkgs; [ wl-clipboard ];
   };
 
+  programs.nh = {
+    enable = true;
+    flake = ./flake.nix;
+  };
+
   services.cliphist = {
     enable = true;
     allowImages = true;

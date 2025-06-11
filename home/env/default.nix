@@ -6,7 +6,7 @@ let
   files = { inherit (pkgs.lib.fileset) toList fileFilter; };
   strings = { inherit (pkgs.lib.strings) concatStringsSep; };
 
-  joinList = list: strings.concatStringsSep ":" list;
+  joinList = strings.concatStringsSep ":";
 
   unixifyValue = value: if typeOf value == "list" then joinList value else toString value;
   unixifySet = set: sets.mapAttrs (key: value: unixifyValue value) set;
