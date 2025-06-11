@@ -11,12 +11,17 @@
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }@inputs:
+    {
+      nixpkgs,
+      home-manager,
+      nix-colors,
+      ...
+    }@inputs:
     {
       nixosConfigurations = {
         houston = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          specialArgs = with inputs; { inherit nix-colors; };
+          specialArgs = { inherit nix-colors; };
           modules = [
             ./configuration.nix
             home-manager.nixosModules.home-manager
@@ -25,7 +30,7 @@
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "old";
               home-manager.users.wrexes = ./home;
-              home-manager.extraSpecialArgs = with inputs; { inherit nix-colors; };
+              home-manager.extraSpecialArgs = { inherit nix-colors; };
             }
           ];
         };
