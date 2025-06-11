@@ -5,6 +5,10 @@
   ...
 }:
 
+let
+  username = "wrexes";
+  sessionVariables = import ./env { inherit pkgs; };
+in
 {
   imports = [
     nix-colors.homeManagerModules.default
@@ -21,16 +25,14 @@
 
   colorScheme = nix-colors.colorSchemes.black-metal-bathory;
 
-  home =
-    let
-      name = "wrexes";
-    in
-    {
-      username = "${name}";
-      homeDirectory = "/home/${name}";
-      stateVersion = "25.05"; # Don't touch that
-      packages = with pkgs; [ wl-clipboard ];
-    };
+  home = {
+    inherit username;
+    homeDirectory = "/home/${username}";
+
+    sessionVariables = sessionVariables.unix;
+
+    packages = with pkgs; [ wl-clipboard ];
+  };
 
   services.cliphist = {
     enable = true;
@@ -39,4 +41,7 @@
 
   # Restart services on build
   systemd.user.startServices = "sd-switch";
+
+  # DON'T TOUCH THAT
+  home.stateVersion = "25.05";
 }
