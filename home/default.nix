@@ -33,7 +33,10 @@ in
 
     sessionVariables = sessionVariables.unix;
 
-    packages = with pkgs; [ wl-clipboard ];
+    packages = with pkgs; [
+      wl-clipboard
+      wev
+    ];
   };
 
   programs.nh = {
