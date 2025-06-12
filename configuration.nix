@@ -48,13 +48,10 @@
     '';
   };
 
-  # Use latest kernel.
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-
-  networking.hostName = "houston"; # Define your hostname.
 
   # Enable networking
   networking.networkmanager.enable = true;
+  networking.hostName = "houston";
 
   # Set your time zone.
   time.timeZone = "Europe/Paris";
@@ -152,8 +149,6 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Install firefox.
-  programs.firefox.enable = true;
 
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
