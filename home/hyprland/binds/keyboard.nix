@@ -23,10 +23,10 @@ in
 workspaces
 ++ [
   # Terminate the current session
-  "$mod, Q, exec, uwsm stop"
+  "$SUPER_R, Q, exec, uwsm stop"
 
   # Lock session
-  "$mod, L, exec, hyprlock"
+  "$SUPER_SHIFT, L, exec, hyprlock"
 
   # Open terminal
   "$mod, RETURN, exec, kitty"
@@ -54,6 +54,8 @@ workspaces
   "$mod, ESCAPE, killactive"
 
   # Control volume with fn keys
+  "$mod, XF86AudioMute,        exec, pavucontrol"
+  ",     XF86AudioMute,        exec, wpctl set-mute t oggle"
   ",     XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
   ",     XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
   "CTRL, XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+"
