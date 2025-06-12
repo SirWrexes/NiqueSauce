@@ -5,6 +5,15 @@
   ...
 }@inputs:
 
+let
+  inherit (config.programs) neovim;
+in
 {
-  imports = [ ./loader.nix ];
+  imports = [ ./lazy-nvim.nix ];
+
+  neovim.lazy-nvim.enable = true;
+
+  neovim.lazy-nvim = {
+    luaMiltiline = true;
+  };
 }
