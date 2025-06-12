@@ -21,6 +21,7 @@ in
     # GUI
     ./hyprland
     ./discord.nix
+    ./browser
   ];
 
   programs.home-manager.enable = true;
