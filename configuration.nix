@@ -149,6 +149,9 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # Virtualisation shenanigans
+  programs.virt-manager.enable = true;
+  virtualisation.libvirtd.enable = true;
 
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
