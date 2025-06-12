@@ -1,10 +1,10 @@
 {
   config,
   pkgs,
-  nix-colors,
+  lib,
   ...
 }@inputs:
 
 {
-  programs.neovim.plugins = map (plugin: import plugin inputs) [ ./colorScheme.nix ];
+  imports = [ ./loader.nix ];
 }
