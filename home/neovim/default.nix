@@ -1,9 +1,9 @@
 { config, pkgs, ... }:
 
 {
-  programs.neovim.enable = true;
-
   imports = [ ./plugins ];
+
+  programs.neovim.enable = true;
 
   programs.neovim = {
     defaultEditor = true;
@@ -20,5 +20,10 @@
       set tabstop=2
       set expandtab
     '';
+
+    lazy-nvim = {
+      enable = true;
+      luaMultiline = true;
+    };
   };
 }

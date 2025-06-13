@@ -1,10 +1,10 @@
 { ... }:
 
 {
-  imports = [ ./lazy-nvim.nix ];
+  imports = [
+    ./lazy-nvim.nix
+    ./colorScheme.nix
 
-  programs.neovim.lazy-nvim = {
-    enable = true;
-    #    luaMultiline = true;
-  };
+    ./code
+  ];
 }

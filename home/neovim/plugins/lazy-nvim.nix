@@ -6,27 +6,257 @@
 }:
 
 let
-  inherit (lib) mkIf throwIfNot types;
+  inherit (lib) mkIf throwIfNot;
   inherit (lib.options) mkOption mkEnableOption mkPackageOption;
+  inherit (lib.types) mkOptionType;
 
   mkDescribedEnableOption = name: description: mkEnableOption name // { inherit description; };
 
   cfg = config.programs.neovim.lazy-nvim;
 
-  extraTypes = {
+  extraTypes = with lib.types; {
     required = T: T // { check = (v: v != null); };
-    luaPredicate =
-      with types;
-      mkOptionType {
-        name = "Lua.Predicate";
-        type = oneOf [
-          boolean
-          string
-          luaInline
-        ];
-        description = "boolean value or Lua function returning boolean";
-        descriptionClass = "conjunction";
+    luaPredicate = mkOptionType {
+      name = "Lua.Predicate";
+      description = "boolean value or Lua function returning boolean";
+      descriptionClass = "conjunction";
+      type = either boolean luaInline;
+    };
+    pkgName = mkOptionType {
+      name = "package name";
+      description = "plugin display name";
+      type = str;
+    };
+    onlyTrue = mkOptionType {
+      name = "true";
+      description = "boolean that can't be false";
+      type = boolean;
+      check = x: x == true;
+    };
+    onlyFalse = mkOptionType {
+      name = "false";
+      description = "boolean that can't be true";
+      type = boolean;
+      check = x: x == false;
+    };
+  };
+
+  types = lib.types // extraTypes;
+
+  /**
+    Credit goes to Folke for most of the codumentation.
+    Check it out [here](https://lazy.folke.io/spec)!
+    Check out hit awseome projects at http://github.com/folke
+  */
+  interfaces = with types; rec {
+    PkgSource = {
+      name = mkOption {
+        type = nullOr str;
+        description = "Display name for the plugin. If not provided, `lib.meta.getName` will be used on the plugin's package.";
       };
+      package = mkOption {
+        type = required types.package;
+        description = "Nix package for the plugin. Usually in `nixpkgs.vimPlugin`.";
+      };
+    };
+
+    Loading = {
+      dependencies = mkOption {
+        type = nullOr (listOf LazaySpec);
+        description = ''
+          Dependencies for this plugin.
+          Setting them here instead of at the root of the will ensure they are loaded before starting this plugin.
+        '';
+      };
+      enabled = mkOption {
+        type = nullOr luaPredicate;
+        description = ''
+          When false, or if the function returns false, then this plugin will not be included in the spec.
+
+          Expected lua type:
+          ```
+          fun(): boolean?
+          ```
+        '';
+      };
+      cond = mkOption {
+        type = nullOr luaPredicate;
+        description = ''
+          Behaves the same as `enabled`, but won't uninstall the plugin when the condition is false.
+          Useful to disable some plugins in vscode, or firenvim for example.
+
+          Expected lua type:
+          ```
+          fun(): boolean?
+          ```
+        '';
+      };
+      priority = mkOption {
+        type = nullOr number;
+        description = ''
+          Only useful for *start* plugins (`lazy = false`) to force loading certain plugins first.
+          Default priority is 50. It's recommended to set this to a high number for colorschemes.
+        '';
+      };
+    };
+
+    Setup = {
+      init = mkOption {
+        type = nullOr luaInline;
+        description = ''
+          Init functions are always executed during startup.
+          Mostly useful for setting vim.g.* configuration used by Vim plugins startup
+
+          Expected luaInline content type:
+          ```
+          fun(LazyPlugin)
+          ```
+        '';
+        opts = mkOption {
+          type = nullOr luaPredicate;
+          description = ''
+            `opts` should be a table (will be merged with parent specs), return a table (replaces parent specs) or should change a table.
+            The table will be passed to the Plugin.config() function. Setting this value will imply Plugin.config()
+
+            Expected luaInline content type:
+            ```
+            fun(self: LazyPlugin, opts: table)
+            ```
+          '';
+        };
+        config = mkOption {
+          type = nullOr (either luaInline onlyTrue);
+          description = ''
+            Config is executed when the plugin loads.
+            The default implementation will automatically run require(MAIN).setup(opts) if `opts` is defined or `config = true` is set.
+            Lazy uses several heuristics to determine the plugin's MAIN module automatically based on the plugin's name.
+
+            Note:
+              Always prefer using `opts` over `config`. `config` is almost never necessary.
+
+              󱩖  GOOD
+              ```
+              { package = pkgs.vimPlugins.lazydev-nvim; opts = { ... }; },
+              ```
+
+                BAD
+              ```
+              {
+                package = pkgs.vimPlugins.lazydev-nvim;
+                config = mkLuaInline ''''
+                  function() require("todo-comments").setup({}) end
+                '''';
+              }
+              ```
+
+            Expected luaInline content type:
+            ```
+            fun(self: LazyPlugin, opts: table)
+            ```
+          '';
+        };
+        main = mkOption {
+          type = nullOr str;
+          description = ''
+            You can specify the main module to use for config() and opts(), in case it can not be determined automatically.
+            See config().
+          '';
+        };
+        build = mkOption {
+          type = oneOf [
+            luaInline
+            string
+            boolean
+          ];
+          description = ''
+            Build is executed when a plugin is installed or updated.
+            See [Building](https://lazy.folke.io/developers#building) for more information.
+
+            Expected luaInline content type:
+            ```
+            fun(LazyPlugin)
+            ```
+          '';
+        };
+      };
+    };
+
+    LazyLoading = {
+      lazy = mkOption {
+        type = nullOr boolean;
+        description = ''
+          When true, the plugin will only be loaded when needed.
+          Lazy-loaded plugins are automatically loaded when their Lua modules are required, or when one of the lazy-loading handlers triggers.
+        '';
+      };
+      event = mkOption {
+        type = nullOr (oneOf [
+          str
+          (listOf str)
+          luaInline
+          (submodule {
+            event = either [
+              # TODO: Create NeoVim event enum
+              str
+              (listOf str)
+            ];
+            pattern = nullOr either [
+              str
+              (listOf str)
+            ];
+          })
+        ]);
+        description = ''
+          Lazy-load on event. Events can be specified with or without paramters (e.g. `BufEnter` or `BufEnter *.lua`).
+
+          Expected luaInline content type: 
+          ```
+          fun(self: LazyPlugin, event: string[]): string[]
+          ```
+        '';
+      };
+      cmd = mkOption {
+        type = nullOr (oneOf [
+          str
+          (listOf str)
+          luaInline
+        ]);
+        description = ''
+          Lazy-load on command.
+
+          Expected luaInline content type: 
+          ```
+          fun(self: LazyPlugin, cmd: string[]): string[]
+          ```
+        '';
+      };
+      ft = mkOption {
+        type = nullOr (oneOf [
+          str
+          (listOf str)
+          luaInline
+        ]);
+        description = ''
+          Lazy-load on filetype.
+
+          Expected luaInline content type:
+          ```
+          fun(self:LazyPlugin, ft:string[]):string[]
+          ```
+        '';
+      };
+      key = mkOption {
+        type = nullOr (oneOf [
+          str
+          (listOf str)
+          luaInline # TODO: Make KeySpec and corresponding Lua generator
+        ]);
+        description = ''
+          Set the key mappings for your plugin.
+          Using this option instead of just having your bindings somewhere in your NeoVim config will enable lazy-loading the plugin on using them.
+        '';
+      };
+    };
   };
 in
 {
@@ -89,7 +319,7 @@ in
           to check inside them in order to then evaluate some condition to decide if a plugin must
           be activated or not.
 
-          Expected Lua type:
+          Expected luaInline content type:
           ```
           fun(self: LazyPlugin): boolean?
           ```
@@ -105,31 +335,57 @@ in
         '';
       };
 
+    plugins =
+      with types;
+      mkOption {
+        default = [ ];
+        type = with interfaces; listOf (submodule (PkgSource // Loading // Setup // LazyLoading));
+      };
+
     package = mkPackageOption pkgs.vimPlugins [ "lazy-nvim" ] { };
   };
 
   config =
     let
+      inherit (lib.strings) getName;
+
       toLua = lib.generators.toLua { multiline = cfg.luaMultiline; };
 
-      rootSpec = {
-        /**
-          Disable automatic plugin updates.
-          Plugins will be searched for in the Nix store, as opposed to the usual
-          Git flavoured way Lazy.nvim uses.
-        */
-        checker.enable = false;
+      setNameIfNull =
+        {
+          package,
+          name ? getName package,
+          ...
+        }@plugin:
+        let
+          plugin.name = name;
+        in
+        plugin;
 
-        /**
-          Prevent Lazy.nvim from installing missing plugins.
-          A missing dependcy or plugin *must* be an error since they're
-          managed using `nixpkgs`
-        */
-        install.missing = false;
+      movePackageToDir =
+        {
+          package ? null,
+          dir ? null,
+          name,
+          ...
+        }@plugin:
+        let
+          package.dir =
+            if package == null && dir == null then
+              throw ''
+                You must at least one of `package` or `dir` in your plugin spec.
+                Error encountered while moving key `package` to `dir` in ${name}.
+              ''
+            else if package != null then
+              "${package}"
+            else
+              dir;
+        in
+        plugin ? package && removeAttrs plugin [ "package" ];
 
-        lazy = cfg.lazyByDefault;
-        cond = cfg.defaultEnablePredicate;
-      };
+      # TODO: Support nested specs, flaten the results.
+
+      spec = map (plugin: movePackageToDir (setNameIfNull plugin)) cfg.plugins;
     in
     mkIf
       (
@@ -144,7 +400,7 @@ in
         ''
       )
       {
-        home.packages = [ cfg.package ];
+        home.packages = [ cfg.package ] ++ map ({ package, ... }: package) cfg.plugins;
 
         programs.neovim = {
           extraLuaPackages =
@@ -156,20 +412,32 @@ in
             ];
         };
 
-        # I add a bunch of empty lines because it seems the resulting concatenated
-        # config can sometimes end up sticking those lua statements directly after another statement,
-        # without even adding a space.
-        # That happened to me with the colorScheme plugin I set up with nix-colors, I should look into
-        # that at some point, maybe a lil' PR could fix it.
-        programs.neovim.extraLuaConfig = ''
+        # Keep the empty lines above and below the lua code to prevent the statements
+        # sticking to other lines during concatenation.
+        programs.neovim.extraLuaConfig =
+          let
+            settings = {
+              # Disable automatic plugin updates.
+              # Plugins will be searched for in the Nix store, as opposed to the usual
+              # Git flavoured way Lazy.nvim uses.
+              checker.enable = false;
 
+              # Prevent Lazy.nvim from installing missing plugins.
+              # A missing dependcy or plugin *must* be an error since they're
+              # managed using `nixpkgs`
+              install.missing = false;
 
+              lazy = cfg.lazyByDefault;
+              cond = cfg.defaultEnablePredicate;
 
-          vim.opt.rtp:prepend("${cfg.package}")
-          require("lazy").setup ${toLua rootSpec}
+              inherit spec;
+            };
+          in
+          ''
 
+            vim.opt.rtp:prepend("${cfg.package}")
+            require("lazy").setup ${toLua settings}
 
-
-        '';
+          '';
       };
 }

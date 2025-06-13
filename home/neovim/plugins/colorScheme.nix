@@ -6,10 +6,15 @@
 }:
 
 let
+  inherit (config.colorScheme) palette slug;
   contrib = nix-colors.lib.contrib { inherit pkgs; };
-  scheme = config.colorScheme;
 in
 {
-  plugin = contrib.vimThemeFromScheme { inherit scheme; };
-  config = "colorscheme nix-${scheme.slug}";
+  # TODO: Make this into a usable plugin for Lazy
+  programs.neovim.plugins = [
+    {
+      plugin = contrib.vimThemeFromScheme { scheme = palette; };
+      config = "colorscheme nix-${slug}";
+    }
+  ];
 }
