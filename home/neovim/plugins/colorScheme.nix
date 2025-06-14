@@ -1,20 +1,21 @@
 {
   config,
   pkgs,
-  nix-colors,
+  lib,
   ...
 }:
 
-let
-  inherit (config.colorScheme) palette slug;
-  contrib = nix-colors.lib.contrib { inherit pkgs; };
-in
 {
-  # TODO: Make this into a usable plugin for Lazy
-  programs.neovim.plugins = [
+  programs.neovim.lazy-nvim.plugins = [
     {
-      plugin = contrib.vimThemeFromScheme { scheme = palette; };
-      config = "colorscheme nix-${slug}";
+      package = pkgs.vimPlugins.tinted-vim;
+      priority = 1000;
+      lazy = false;
+      init = lib.generators.mkLuaInline ''
+        function()
+          vim.cmd.colorscheme 'base24-ic-orange-ppl'
+        end
+      '';
     }
   ];
 }
