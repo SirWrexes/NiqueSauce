@@ -13,6 +13,7 @@
       lazy = false;
       init = lib.generators.mkLuaInline ''
         function()
+          vim.opt.termguicolors = true
           vim.cmd.colorscheme 'base24-ic-orange-ppl'
         end
       '';

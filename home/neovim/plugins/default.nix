@@ -3,8 +3,8 @@
 {
   imports = [
     ./lazy-nvim.nix
-    ./colorScheme.nix
 
     ./code
+    ./ui
   ];
 }
