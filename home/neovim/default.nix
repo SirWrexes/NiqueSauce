@@ -20,7 +20,6 @@
       set tabstop=2
       set expandtab
     '';
-
     lazy-nvim = {
       enable = true;
       luaMultiline = true;

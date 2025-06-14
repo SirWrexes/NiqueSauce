@@ -28,29 +28,7 @@ in
 
   # Credi: Fahrenheit by fcpg
   # https://github.com/fcpg/vim-fahrenheit
-  colorScheme = {
-    slug = "vim-fahrenheit";
-    name = "Fahrenheit";
-    author = "github.com/fcpg";
-    palette = {
-      base00 = "#ffffff";
-      base01 = "#ffffd7";
-      base02 = "#ffd7af";
-      base03 = "#d7af87";
-      base04 = "#af875f";
-      base05 = "#d7875f";
-      base06 = "#ffaf5f";
-      base07 = "#ffd787";
-      base08 = "#ffd75f";
-      base09 = "#d75f00";
-      base0A = "#870000";
-      base0B = "#875f5f";
-      base0C = "#5f87af";
-      base0D = "#a8a8a8";
-      base0E = "#262626";
-      base0F = "#000000";
-    };
-  };
+  colorScheme = nix-colors.colorSchemes.black-metal-bathory;
 
   home = {
     inherit username;
@@ -59,14 +37,27 @@ in
     sessionVariables = sessionVariables.unix;
 
     packages = with pkgs; [
+      # Clipboard backend
       wl-clipboard
+
+      # Live input data visualiser
       wev
+
+      # Screenshot tool
+      grimblast
     ];
   };
 
-  programs.nh = {
-    enable = true;
-    flake = "$HOME/.nixos";
+  programs = {
+    # nixos-rebuild wrapper
+    nh = {
+      enable = true;
+      flake = "$HOME/.nixos";
+    };
+
+    # Media downloader
+    yt-dlp.enable = true;
+
   };
 
   services.cliphist = {
