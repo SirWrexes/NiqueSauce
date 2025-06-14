@@ -2,9 +2,9 @@
 
 {
   imports = [
-    ./lazy-nvim.nix
-
-    ./code
+    ./lazy-nvim
+    ./apis
     ./ui
+    ./code
   ];
 }
