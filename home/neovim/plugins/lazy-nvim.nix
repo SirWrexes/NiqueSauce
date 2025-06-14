@@ -6,10 +6,20 @@
 }:
 
 let
-  inherit (lib.options) mkOption mkEnableOption mkPackageOption;
-  inherit (lib.types) mkOptionType;
+  inherit (lib.options)
+    mkOption
+    mkEnableOption
+    mkPackageOption
+    literalExpression
+    ;
 
   toLua = lib.generators.toLua { multiline = cfg.luaMultiline; };
+  toLuaKeys = lib.generators.toLua {
+    multiline = cfg.luaMultiline;
+    asBindings = true;
+    indent = ","; # Hacky but works great! (I hope)
+  };
+
   mkDescribedEnableOption =
     name: extraDescription:
     with lib.types;
@@ -23,17 +33,48 @@ let
   cfg = config.programs.neovim.lazy-nvim;
 
   extraTypes = with lib.types; {
-    required = T: T // { check = v: v != null; };
     luaPredicate = either bool luaInline;
     onlyTrue = bool // {
       check = v: v == true;
     };
-    onlyFalse = bool // {
-      check = v: v == false;
-    };
   };
 
   types = lib.types // extraTypes;
+
+  LazyKey =
+    with types;
+    submodule {
+      lhs = mkOption {
+        type = str;
+        description = "Key of sequence of key to map to";
+      };
+      rhs = mkOption {
+        type = nullOr (either str luaInline);
+        default = null;
+        description = "The action to perform";
+      };
+      mode = mkOption {
+        type = nullOr (either str (listOf str));
+        default = "n";
+        description = "Vim mode for this mapping";
+        example = literalExpression ''["n" "i"]'';
+      };
+      desc = {
+        type = nullOr str;
+        default = null;
+        description = "Mapping description (will be prefixed with plugin name)";
+      };
+      silent = mkOption {
+        type = nullOr bool;
+        default = true;
+        description = "Don't show the executed command in NeoVim's command line";
+      };
+      noremap = {
+        type = nullOr bool;
+        default = null;
+        description = "Disable recursive mapping (see https://neovim.io/doc/user/map.html#recursive_mapping)";
+      };
+    };
 
   # Credit goes to Folke for most of the codumentation.
   # Check it out [here](https://lazy.folke.io/spec)!
@@ -106,7 +147,7 @@ let
           '';
         };
         opts = mkOption {
-          type = nullOr luaPredicate;
+          type = nullOr (either attrs luaInline);
           default = null;
           description = ''
             `opts` should be a table (will be merged with parent specs), return a table (replaces parent specs) or should change a table.
@@ -242,12 +283,8 @@ let
             ```
           '';
         };
-        key = mkOption {
-          type = nullOr (oneOf [
-            str
-            (listOf str)
-            luaInline # TODO: Make KeySpec and corresponding Lua generator
-          ]);
+        keys = mkOption {
+          type = nullOr (listOf (either str LazyKey));
           default = null;
           description = ''
             Set the key mappings for your plugin.
@@ -345,11 +382,26 @@ in
 
   config =
     let
-      inherit (builtins) filter;
+      inherit (builtins) typeOf;
       inherit (lib.strings) getName;
       inherit (lib.trivial) throwIf pipe;
-      inherit (lib.lists) concatMap unique;
+      inherit (lib.lists) concatMap filter unique;
       inherit (lib.attrsets) filterAttrs updateManyAttrsByPath;
+      inherit (lib.generators) mkLuaInline;
+      inherit (lib.types) isType;
+
+      isLuaInline = isType "lua-inline";
+
+      filterDisabled = filter (
+        {
+          enabled ? false,
+          cond ? false,
+          ...
+        }:
+        enabled != false && cond != false
+      );
+
+      stripNulls = filterAttrs (n: v: v != null);
 
       ensureHasPackageOrDir =
         {
@@ -359,61 +411,87 @@ in
         }@plugin:
         throwIf (package == null && dir == null) ''
           No package or dir attribute provided.
-          Spec: ${toString plugin}
+          Spec: ${toString (stripNulls plugin)}
         '' plugin;
 
-      # TODO: (Maybe) Support nested specs, flaten the results.
-      finaliseSpec =
-        plugins:
-        map
-          (
-            {
-              dir ? null,
-              package ? null,
-              name ? null,
-              dependencies ? null,
-              ...
-            }@plugin:
-            pipe plugin [
-              ensureHasPackageOrDir
-              (updateManyAttrsByPath [
-                {
-                  path = [ "name" ];
-                  update =
-                    _:
-                    if name != null then
-                      name
-                    else if package != null then
-                      getName package
-                    else
-                      baseNameOf dir;
-                }
-                {
-                  path = [ "dir" ];
-                  update = _: if dir != null then dir else package;
-                }
-                {
-                  path = [ "package" ];
-                  update = _: null;
-                }
-                {
-                  path = [ "dependencies" ];
-                  update = _: if dependencies != null then finaliseSpec dependencies else null;
-                }
-              ])
-              (filterAttrs (n: v: v != null))
-            ]
+      finaliseKey =
+        {
+          lhs,
+          rhs ? null,
+          desc ? null,
+          ...
+        }@key:
+        mkLuaInline ''{"${lhs}", ${if rhs != null then "\"${rhs}\"" else ""} ${
+          toLuaKeys (
+            stripNulls (
+              removeAttrs key [
+                "lhs"
+                "rhs"
+              ]
+            )
           )
-          (
-            filter (
-              {
-                enabled ? false,
-                cond ? false,
-                ...
-              }:
-              (enabled != false && cond != false)
-            ) plugins
-          );
+        }}'';
+
+      finaliseKeyList = map (
+        key:
+        if typeOf key == "string" then
+          key
+        else if typeOf key == "set" then
+          finaliseKey key
+        else
+          null
+      );
+
+      finaliseSpec =
+        {
+          dir ? null,
+          package ? null,
+          name ? null,
+          dependencies ? null,
+          keys ? null,
+          ...
+        }@plugin:
+        updateManyAttrsByPath [
+          {
+            path = [ "name" ];
+            update =
+              _:
+              if name != null then
+                name
+              else if package != null then
+                getName package
+              else
+                baseNameOf dir;
+          }
+          {
+            path = [ "dir" ];
+            update = _: if dir != null then dir else package;
+          }
+          {
+            path = [ "package" ];
+            update = _: null;
+          }
+          {
+            path = [ "dependencies" ];
+            update = _: if dependencies != null then finaliseSpecList dependencies else null;
+          }
+          {
+            path = [ "keys" ];
+            update = _: if keys != null then finaliseKeyList keys else null;
+          }
+        ] plugin;
+
+      # TODO: (Maybe) Support nested specs, flaten the results.
+      finaliseSpecList =
+        plugins:
+        map (
+          plugin:
+          pipe plugin [
+            ensureHasPackageOrDir
+            finaliseSpec
+            stripNulls
+          ]
+        ) (filterDisabled plugins);
 
       flattenDepsTree = concatMap (
         {
@@ -430,7 +508,7 @@ in
           [ ]
       );
     in
-    mkIf
+    lib.mkIf
       (
         cfg.enable
         && lib.asserts.assertMsg config.programs.neovim.enable ''
@@ -470,7 +548,7 @@ in
               lazy = cfg.lazyByDefault;
               cond = cfg.defaultEnablePredicate;
 
-              spec = finaliseSpec cfg.plugins;
+              spec = finaliseSpecList cfg.plugins;
             }
           })
         '';
