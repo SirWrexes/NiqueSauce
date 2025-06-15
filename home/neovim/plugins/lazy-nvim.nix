@@ -10,7 +10,7 @@ let
 
   cfg = config.programs.neovim.lazy-nvim;
 
-  toLua = lib.generators.toLua { multiline = cfg.luaMultiline; };
+  toLua = lib.generators.toLua { multiline = false; };
 
   mkDescribedEnableOption =
     name: extraDescription:
@@ -39,33 +39,16 @@ in
       Important note:
         While configuring this module, you might come accross options that have descriptions
         mentioning Lua function signatures as their accepted type. It means that the option
-        must receive a value of type `luaInline.`
+        must receive a value of type `lib.types.luaInline.`
         
         Aside from the internal checking that such a value has effectively been produced by
         `lib.generators.mkLuaInline :: a -> luaInline`, there is no way to verify what you
         pass to those options is valid Lua code. It is up to you to make sure that you properly
-        wrote your code snippet.
-
-        A minimal amount of knowledge of Lua and event-based / asynchronous programming is required
-        to really use Lazy.nvim at its full potential. You can check out my config if you want some
-        examples: [TODO: add link]
-
-      `programs.neovim.lazy-vim.luaMultiline` is your friend if you want to check out the generated
-      config files—or you could run something like Stylua on them if you wish.
+        wrote your Lua snippet.
 
       Lastly, I highly recommend checking out the official docs for the plugin: https://lazy.folke.io/
 
       Enjoy!
-    '';
-
-    luaMultiline = mkDescribedEnableOption "multiline Lua declarations" ''
-      By default, this module produces single-line lua declarations.
-      This option allows you to change this behaviour and actually produce multiline and indented Lua.
-
-      It makes debugging your configs easier, but minified code can slightly improve performance and storage usage,
-      depending on the size of the total accumulated configurations.
-
-      ...and one thing I love about NeoVim is it's amazing speed and responsiveness, don't you agree?
     '';
 
     lazyByDefault = mkDescribedEnableOption "lazy-loading for ALL plugins by default" ''
@@ -87,7 +70,7 @@ in
         default = null;
         description = ''
           Default `cond` that is assigned to all plugins. You can use it to globally disable plugins in bulk.
-          When false, or if the function returns false, then this plugin will not be included in the spec.
+          When false, or if the function returns false, then the plugin will not be included in the spec.
 
           Lazy.nvim ignores extraneous keys on your specs, so you could, for instance, set a common flag
           to check inside them in order to then evaluate some condition to decide if a plugin must
@@ -135,15 +118,7 @@ in
 
   config =
     let
-      inherit (builtins) typeOf;
-      inherit (lib.strings) getName;
-      inherit (lib.trivial) throwIf pipe;
-      inherit (lib.lists) concatMap filter unique;
-      inherit (lib.attrsets) filterAttrs updateManyAttrsByPath;
-      inherit (lib.generators) mkLuaInline;
-      inherit (lib.types) isType;
-
-      isLuaInline = isType "lua-inline";
+      inherit (lib.lists) concatMap unique;
 
       flattenDepsTree = concatMap (
         {

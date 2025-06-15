@@ -11,7 +11,9 @@ let
 in
 {
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
-    {
+    rec {
+      name = "NvimTree";
+
       package = nvim-tree-lua;
 
       dependencies = [ { package = nvim-web-devicons; } ];
@@ -23,7 +25,7 @@ in
           vim.g.loaded_netrwPlugin = 1
 
           -- Enable full colour palette if it's not already
-          vim.opt.termguicolors = 1
+          vim.opt.termguicolors = true
         end
       '';
 
@@ -33,7 +35,7 @@ in
         sync_root_with_cwd = true;
         respect_buf_cwd = true;
 
-        view.width = 50;
+        view.width = 30;
 
         renderer.group_empty = true;
 
@@ -41,55 +43,62 @@ in
 
         update_focused_file.enable = true;
 
-        # on_attach = import ./nvim-tree.on_attach.nix
+        # Due to the fact NvimTree uses buffer-local mappings,
+        # most key bindings are set in lua in the `on_attach` event handler.
+        on_attach = import ./on_attach.nix { inherit lib name; };
       };
 
       config = mkLuaInline ''
-        local evt = require('nvim-tree.api').events
+        function(_, opts)
+          local evt = require('nvim-tree.api').events
 
-        evt.subscribe(
-          evt.Event.FileCreated,
-          function(file) vim.cmd.edit(file.fname) end
-        )
+          evt.subscribe(
+            evt.Event.FileCreated,
+            function(file) vim.cmd.edit(file.fname) end
+          )
 
-        require('nvim-tree').setup(opts)
+          require('nvim-tree').setup(opts)
+        end
       '';
 
-      # keys =
-      #   let
-      #     inherit (lib.attrsets) updateManyAttrsByPath;
+      keys =
+        let
+          inherit (lib.attrsets) updateManyAttrsByPath;
 
-      #     mkKeys = map (updateManyAttrsByPath [
-      #       # {
-      #       #   path = [ "desc" ];
-      #       #   update = desc: "NvimTree: ${desc}";
-      #       # }
-      #       {
-      #         path = [ "rhs" ];
-      #         update = cmd: mkLuaInline ''function() require("nvim-tree.api").tree.${cmd}() end'';
-      #       }
-      #       # {
-      #       #   path = [ "mode" ];
-      #       #   update = _: [
-      #       #     "n"
-      #       #     "i"
-      #       #     "x"
-      #       #   ];
-      #       # }
-      #     ]);
-      #   in
-      #   [
-      #     {
-      #       lhs = "<C-n>";
-      #       rhs = "toggle";
-      #       # desc = "toggle";
-      #     }
-      #     {
-      #       lhs = "<M-n>";
-      #       rhs = "focus";
-      #       # desc = "focus";
-      #     }
-      #   ];
+          mkKeys = map (
+            { rhs, ... }@key:
+            updateManyAttrsByPath [
+              {
+                path = [ "rhs" ];
+                update = cmd: mkLuaInline ''function() require("nvim-tree.api").tree.${cmd}() end'';
+              }
+              {
+                path = [ "mode" ];
+                update = _: [
+                  "n"
+                  "i"
+                  "x"
+                ];
+              }
+              {
+                path = [ "desc" ];
+                update = _: rhs;
+              }
+            ] key
+          );
+        in
+        mkKeys [
+          {
+            lhs = "<C-n>";
+            rhs = "toggle";
+            desc = "toggle";
+          }
+          {
+            lhs = "<M-n>";
+            rhs = "focus";
+            desc = "focus";
+          }
+        ];
     }
   ];
 }

@@ -6,10 +6,8 @@
 }:
 
 let
-  inherit (lib.generators) mkLuaInline toLua;
-
-  # TODO: Find a way to make this less verbose
-  lua = toLua { multiline = config.programs.neovim.lazy-nvim.luaMultiline; };
+  inherit (lib.generators) mkLuaInline;
+  inherit (config.programs.neovim.lazy-nvim) toLua;
 in
 {
   # Since I'm using the lazy-nvim module and managing plugins with
@@ -37,7 +35,7 @@ in
       init = mkLuaInline ''
         function()
           vim.g.coq_settings = ${
-            lua {
+            toLua {
               auto_start = "shut-up";
               keymap = {
                 jump_to_mark = "<C-l>";

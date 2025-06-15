@@ -58,11 +58,19 @@ in
     # Media downloader
     yt-dlp.enable = true;
 
+    # The best media player
+    mpv.enable = true;
   };
 
-  services.cliphist = {
-    enable = true;
-    allowImages = true;
+  services = {
+    # Screenshot tool
+    flameshot.enable = true;
+
+    # Clipboard history manager
+    cliphist = {
+      enable = true;
+      allowImages = true;
+    };
   };
 
   # DON'T TOUCH THAT

@@ -48,7 +48,6 @@
     '';
   };
 
-
   # Enable networking
   networking.networkmanager.enable = true;
   networking.hostName = "houston";
@@ -162,6 +161,7 @@
     ripgrep
     kitty
 
+    ffmpeg-full
     pavucontrol
     alsa-utils
     helvum

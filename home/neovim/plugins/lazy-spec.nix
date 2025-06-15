@@ -47,9 +47,9 @@ in
           };
         };
 
-      # Credit goes to Folke for most of the codumentation.
-      # Check it out [here](https://lazy.folke.io/spec)!
-      # Check out his awseome projects at http://github.com/folke
+      # Credit goes to Folke for most of the documentation.
+      # Check it out [here](https://lazy.folke.io/spec).
+      # Check out his awseome projects on [Github](http://github.com/folke)!
       LazySpec =
         with types;
         submodule rec {
@@ -255,40 +255,7 @@ in
               '';
             };
             keys = mkOption {
-              type = nullOr (
-                listOf (submodule {
-                  lhs = mkOption {
-                    type = str;
-                    description = "Key of sequence of key to map to";
-                  };
-                  rhs = mkOption {
-                    type = nullOr (either str luaInline);
-                    default = null;
-                    description = "The action to perform";
-                  };
-                  mode = mkOption {
-                    type = nullOr (either str (listOf str));
-                    default = "n";
-                    description = "Vim mode for this mapping";
-                    example = literalExpression ''["n" "i"]'';
-                  };
-                  desc = mkOption {
-                    type = nullOr str;
-                    default = null;
-                    description = "Mapping description";
-                  };
-                  silent = mkOption {
-                    type = nullOr bool;
-                    default = true;
-                    description = "Don't show the executed command in NeoVim's command line";
-                  };
-                  noremap = mkOption {
-                    type = nullOr bool;
-                    default = null;
-                    description = "Disable recursive mapping (see https://neovim.io/doc/user/map.html#recursive_mapping)";
-                  };
-                })
-              );
+              type = nullOr (listOf (either str LazyKey));
               default = null;
               description = ''
                 Set the key mappings for your plugin.
@@ -309,7 +276,7 @@ in
       finalSpec =
         with types;
         mkOption {
-          type = str;
+          type = listOf attrs;
           visible = false;
           internal = true;
         };
@@ -325,12 +292,6 @@ in
       inherit (lib.generators) mkLuaInline;
       inherit (types) isType;
       inherit (cfg) toLua;
-
-      toLuaKeys = lib.generators.toLua {
-        multiline = cfg.luaMultiline;
-        asBindings = true;
-        indent = ","; # Hacky but works great! (I hope)
-      };
 
       isLuaInline = isType "lua-inline";
 
@@ -356,33 +317,60 @@ in
           Spec: ${toString (stripNulls plugin)}
         '' plugin;
 
+      finaliseKeyRhs = rhs: if (typeOf rhs == "set") && (isLuaInline rhs) then rhs.expr else toString rhs;
+
+      finaliseKeyOpts =
+        let
+          inherit (lib.attrsets) foldlAttrs;
+        in
+        key:
+        pipe key [
+          (
+            key:
+            removeAttrs key [
+              "lhs"
+              "rhs"
+              "desc"
+            ]
+          )
+          stripNulls
+          (foldlAttrs (
+            acc: name: value:
+            acc ++ [ ''["${name}"] = ${toLua value}'' ]
+          ) [ ])
+        ];
+
       finaliseKey =
+        pluginName:
         {
           lhs,
           rhs ? null,
           desc ? null,
           ...
         }@key:
-        mkLuaInline ''{"${lhs}", ${if rhs != null then "\"${rhs}\"" else ""} ${
-          toLuaKeys (
-            stripNulls (
-              removeAttrs key [
-                "lhs"
-                "rhs"
-              ]
-            )
-          )
-        }}'';
+        let
+          inherit (lib.strings) concatStringsSep;
+          inherit (builtins) toJSON;
 
-      finaliseKeyList = map (
-        key:
-        if typeOf key == "string" then
-          key
-        else if typeOf key == "set" then
-          finaliseKey key
-        else
-          null
-      );
+          final =
+            [ (toJSON lhs) ]
+            ++ (if rhs != null then [ (finaliseKeyRhs rhs) ] else [ ])
+            ++ (if desc != null then [ ''["desc"] = "${pluginName}: ${desc}"'' ] else [ ])
+            ++ (finaliseKeyOpts key);
+        in
+        mkLuaInline ''{${concatStringsSep "," final}}'';
+
+      finaliseKeyList =
+        pluginName:
+        map (
+          key:
+          if typeOf key == "string" then
+            key
+          else if typeOf key == "set" then
+            finaliseKey pluginName key
+          else
+            null
+        );
 
       finaliseSpec =
         {
@@ -393,17 +381,19 @@ in
           keys ? null,
           ...
         }@plugin:
+        let
+          finalName =
+            if name != null then
+              name
+            else if package != null then
+              getName package
+            else
+              baseNameOf dir;
+        in
         updateManyAttrsByPath [
           {
             path = [ "name" ];
-            update =
-              _:
-              if name != null then
-                name
-              else if package != null then
-                getName package
-              else
-                baseNameOf dir;
+            update = _: finalName;
           }
           {
             path = [ "dir" ];
@@ -419,7 +409,7 @@ in
           }
           {
             path = [ "keys" ];
-            update = _: if keys != null then finaliseKeyList keys else null;
+            update = _: if keys != null then finaliseKeyList finalName keys else null;
           }
         ] plugin;
 
@@ -437,7 +427,7 @@ in
     in
     lib.mkIf cfg.enable {
       programs.neovim.lazy-nvim = {
-        finalSpec = toLua (finaliseSpecList cfg.plugins);
+        finalSpec = finaliseSpecList cfg.plugins;
       };
     };
 }
