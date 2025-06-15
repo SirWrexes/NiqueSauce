@@ -38,12 +38,12 @@ in
             silent = mkOption {
               type = nullOr bool;
               default = true;
-              description = "Don't show the executed command in NeoVim's command line";
+              description = "Don't show the executed command in NeoVim's command line.";
             };
             noremap = mkOption {
               type = nullOr bool;
-              default = null;
-              description = "Disable recursive mapping (see https://neovim.io/doc/user/map.html#recursive_mapping)";
+              default = true;
+              description = "Disable recursive mapping (see https://neovim.io/doc/user/map.html#recursive_mapping).";
             };
           };
         };

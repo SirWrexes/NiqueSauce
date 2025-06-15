@@ -7,7 +7,6 @@
 
 let
   inherit (lib.generators) mkLuaInline toLua;
-  lua = toLua { multiline = config.programs.neovim.lazy-nvim.luaMultiline; };
 in
 {
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
@@ -45,6 +44,8 @@ in
 
         # Due to the fact NvimTree uses buffer-local mappings,
         # most key bindings are set in lua in the `on_attach` event handler.
+        # This one is writtent in Nix to keep consistency for command description prefix,
+        # using this plugin spec's name key.
         on_attach = import ./on_attach.nix { inherit lib name; };
       };
 

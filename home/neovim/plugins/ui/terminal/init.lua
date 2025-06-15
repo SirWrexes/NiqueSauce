@@ -12,12 +12,11 @@ function()
         -- Require a double tap on <esc> to leave terminal mode.
         -- That way, TUIs that rely on <esc> to quit won't make you close the terminal
         -- window when you want out of them.
-        require("foxutils.keys").noremap.t(
-          "Terminal: Leave Terminal mode",
-          "<esc><esc>",
-          [[<C-\><C-n>]],
-          { buffer = 0 }
-        )
+        vim.keymap.set("t", "<esc><esc>", [[<C-\><C-n>]], {
+          buffer = 0,
+          silent = true,
+          noremap = true,
+        })
       end,
     })
   end

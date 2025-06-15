@@ -11,7 +11,7 @@ in
     {
       package = toggleterm-nvim;
 
-      init = mkLuaInline (readFile ./init.lua);
+      init = ./init.lua;
 
       opts = {
         inherit shell;
