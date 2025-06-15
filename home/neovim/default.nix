@@ -1,5 +1,28 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
+let
+  inherit (builtins) readDir;
+  inherit (lib.trivial) pipe;
+  inherit (lib.strings) readFile hasSuffix concatStringsSep;
+  inherit (lib.attrsets) filterAttrs attrNames;
+
+  concat = concatStringsSep "\n";
+
+  getFilesWithSuffix =
+    suffix: dir:
+    pipe (readDir dir) [
+      (filterAttrs (path: type: type == "regular" && hasSuffix suffix path))
+      attrNames
+      (map (path: dir + "/${path}"))
+    ];
+
+  readFilesWithSuffix = suffix: dir: map readFile (getFilesWithSuffix suffix dir);
+in
 {
   imports = [ ./plugins ];
 
@@ -13,13 +36,17 @@
     viAlias = true;
     vimAlias = true;
     vimdiffAlias = true;
-    extraConfig = ''
-      set number
-      set relativenumber
-      set shiftwidth=2
-      set tabstop=2
-      set expandtab
-    '';
-    lazy-nvim.enable = true;
   };
+
+  programs.neovim.extraConfig = ''
+
+    ${concat (readFilesWithSuffix ".vim" ./vim.d)}
+
+  '';
+
+  programs.neovim.extraLuaConfig = ''
+
+    ${concat (readFilesWithSuffix ".lua" ./vim.d)}
+
+  '';
 }

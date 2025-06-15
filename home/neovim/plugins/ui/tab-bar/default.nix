@@ -27,6 +27,7 @@
         let
           inherit (lib.attrsets) updateManyAttrsByPath;
           inherit (builtins) genList;
+
           mkKeys = map (updateManyAttrsByPath [
             {
               path = [ "mode" ];
@@ -93,10 +94,6 @@
             desc = "Open buffer picker";
           }
           {
-            lhs = "<leader>bm";
-            desc = "Move buffer to tab";
-          }
-          {
             lhs = "<leader>bon";
             rhs = "BufferOrderByNumber";
             desc = "Order buffers by number";
@@ -125,12 +122,12 @@
         ++ (genList (
           x:
           let
-            n = x + 1;
+            n = toString (x + 1);
           in
           {
             lhs = "<C-${n}>";
-            rhs = "BufferGoto ${toString n}";
-            desc = "Jump to buffer ${toString n}";
+            rhs = "BufferGoto ${n}";
+            desc = "Jump to buffer ${n}";
           }
         ) 8);
     }
