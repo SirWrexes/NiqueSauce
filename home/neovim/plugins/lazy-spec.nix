@@ -328,7 +328,7 @@ in
           Spec: ${toString (stripNulls plugin)}
         '' plugin;
 
-      finaliseKeyRhs = rhs: if (typeOf rhs == "set") && (isLuaInline rhs) then rhs.expr else toString rhs;
+      finaliseKeyRhs = rhs: if (typeOf rhs == "set") && (isLuaInline rhs) then rhs.expr else toLua rhs;
 
       finaliseKeyOpts =
         let
