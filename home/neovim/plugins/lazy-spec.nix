@@ -19,9 +19,10 @@ in
               description = "Key of sequence of key to map to";
             };
             rhs = mkOption {
-              type = nullOr (either str luaInline);
+              type = nullOr (either str luaSnippet);
               default = null;
               description = "The action to perform";
+              apply = readLuaSnippet;
             };
             mode = mkOption {
               type = nullOr (either str (listOf str));
@@ -72,7 +73,7 @@ in
               '';
             };
             enabled = mkOption {
-              type = nullOr luaPredicate;
+              type = nullOr luaSnippet;
               default = null;
               description = ''
                 When false, or if the function returns false, then this plugin will not be included in the spec.
@@ -82,9 +83,10 @@ in
                 fun(): boolean?
                 ```
               '';
+              apply = readLuaSnippet;
             };
             cond = mkOption {
-              type = nullOr luaPredicate;
+              type = nullOr luaSnippet;
               default = null;
               description = ''
                 Behaves the same as `enabled`, but won't uninstall the plugin when the condition is false.
@@ -95,6 +97,7 @@ in
                 fun(): boolean?
                 ```
               '';
+              apply = readLuaSnippet;
             };
             priority = mkOption {
               type = nullOr number;
@@ -105,33 +108,35 @@ in
               '';
             };
             init = mkOption {
-              type = nullOr luaInline;
+              type = nullOr luaSnippet;
               default = null;
               description = ''
                 Init functions are always executed during startup.
                 Mostly useful for setting vim.g.* configuration used by Vim plugins startup
 
-                Expected luaInline content type:
+                Expected luaSnippet content type:
                 ```
                 fun(LazyPlugin)
                 ```
               '';
+              apply = readLuaSnippet;
             };
             opts = mkOption {
-              type = nullOr (either attrs luaInline);
+              type = nullOr (either attrs luaSnippet);
               default = null;
               description = ''
                 `opts` should be a table (will be merged with parent specs), return a table (replaces parent specs) or should change a table.
                 The table will be passed to the Plugin.config() function. Setting this value will imply Plugin.config()
 
-                Expected luaInline content type:
+                Expected luaSnippet content type:
                 ```
                 fun(self: LazyPlugin, opts: table)
                 ```
               '';
+              apply = readLuaSnippet;
             };
             config = mkOption {
-              type = nullOr (either luaInline onlyTrue);
+              type = nullOr (either luaSnippet onlyTrue);
               default = null;
               description = ''
                 Config is executed when the plugin loads.
@@ -156,11 +161,12 @@ in
                   }
                   ```
 
-                Expected luaInline content type:
+                Expected luaSnippet content type:
                 ```
                 fun(self: LazyPlugin, opts: table)
                 ```
               '';
+              apply = readLuaSnippet;
             };
             main = mkOption {
               type = nullOr str;
@@ -172,7 +178,7 @@ in
             };
             build = mkOption {
               type = nullOr (oneOf [
-                luaInline
+                luaSnippet
                 str
                 bool
               ]);
@@ -181,11 +187,12 @@ in
                 Build is executed when a plugin is installed or updated.
                 See [Building](https://lazy.folke.io/developers#building) for more information.
 
-                Expected luaInline content type:
+                Expected luaSnippet content type:
                 ```
-                fun(LazyPlugin)
+                fun(self: LazyPlugin)
                 ```
               '';
+              apply = readLuaSnippet;
             };
             lazy = mkOption {
               type = nullOr bool;
@@ -199,7 +206,7 @@ in
               type = nullOr (oneOf [
                 str
                 (listOf str)
-                luaInline
+                luaSnippet
                 (submodule {
                   event = either [
                     # TODO: Create NeoVim event enum
@@ -216,51 +223,55 @@ in
               description = ''
                 Lazy-load on event. Events can be specified with or without paramters (e.g. `BufEnter` or `BufEnter *.lua`).
 
-                Expected luaInline content type: 
+                Expected luaSnippet content type: 
                 ```
                 fun(self: LazyPlugin, event: string[]): string[]
                 ```
               '';
+              apply = readLuaSnippet;
             };
             cmd = mkOption {
               type = nullOr (oneOf [
                 str
                 (listOf str)
-                luaInline
+                luaSnippet
               ]);
               default = null;
               description = ''
                 Lazy-load on command.
 
-                Expected luaInline content type: 
+                Expected luaSnippet content type: 
                 ```
                 fun(self: LazyPlugin, cmd: string[]): string[]
                 ```
               '';
+              apply = readLuaSnippet;
             };
             ft = mkOption {
               type = nullOr (oneOf [
                 str
                 (listOf str)
-                luaInline
+                luaSnippet
               ]);
               default = null;
               description = ''
                 Lazy-load on filetype.
 
-                Expected luaInline content type:
+                Expected luaSnippet content type:
                 ```
                 fun(self:LazyPlugin, ft: string[]):string[]
                 ```
               '';
+              apply = readLuaSnippet;
             };
             keys = mkOption {
-              type = nullOr (listOf (either str LazyKey));
+              type = nullOr (either luaSnippet (listOf (either str LazyKey)));
               default = null;
               description = ''
                 Set the key mappings for your plugin.
                 Using this option instead of just having your bindings somewhere in your NeoVim config will enable lazy-loading the plugin on using them.
               '';
+              apply = readLuaSnippet;
             };
           };
         };

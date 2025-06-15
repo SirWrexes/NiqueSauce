@@ -6,7 +6,10 @@
 }:
 
 let
+  inherit (builtins) typeOf;
   inherit (lib.options) mkOption mkPackageOption;
+  inherit (lib.strings) readFile hasSuffix;
+  inherit (lib.generators) mkLuaInline;
 
   cfg = config.programs.neovim.lazy-nvim;
 
@@ -22,10 +25,23 @@ let
       example = "true";
     };
 
-  extraTypes = with lib.types; {
-    luaPredicate = either bool luaInline;
-    onlyTrue = bool // {
-      check = v: v == true;
+  extraTypes = with lib.types; rec {
+    pathIsLua = path: hasSuffix ".lua" "${path}";
+
+    luaFile = addCheck path (pathIsLua) // {
+      name = "luaFile";
+      description = "Path to a Lua source file";
+    };
+
+    luaSnippet = either luaInline luaFile;
+
+    luaPredicate = either bool luaSnippet;
+
+    readLuaSnippet = x: if typeOf x == "path" && pathIsLua x then mkLuaInline (readFile x) else x;
+
+    onlyTrue = addCheck bool (x: x) // {
+      name = "boolTrue";
+      description = "A boolean value that can only be true";
     };
   };
 
@@ -38,11 +54,11 @@ in
     enable = mkDescribedEnableOption "LazyVim plugin manager for NeoVim" ''
       Important note:
         While configuring this module, you might come accross options that have descriptions
-        mentioning Lua function signatures as their accepted type. It means that the option
-        must receive a value of type `lib.types.luaInline.`
+        mentioning Lua function signatures as their accepted type. It means that the option,
+        if you chose to use Lua code for it, must receive a value of type `lib.types.luaInline`
+        or a path to a Lua file that will be read by this module.
         
-        Aside from the internal checking that such a value has effectively been produced by
-        `lib.generators.mkLuaInline :: a -> luaInline`, there is no way to verify what you
+        Aside from the type checking of the Nix value, there is no way to verify what you
         pass to those options is valid Lua code. It is up to you to make sure that you properly
         wrote your Lua snippet.
 
@@ -76,7 +92,7 @@ in
           to check inside them in order to then evaluate some condition to decide if a plugin must
           be activated or not.
 
-          Expected luaInline content type:
+          Expected luaSnippet content type:
           ```
           fun(self: LazyPlugin): boolean?
           ```
