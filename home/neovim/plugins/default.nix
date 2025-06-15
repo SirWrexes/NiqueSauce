@@ -7,7 +7,8 @@
     ./lazy-nvim.nix
 
     ./apis
-    ./ui
     ./code
+    ./tools
+    ./ui
   ];
 }

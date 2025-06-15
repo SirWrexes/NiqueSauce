@@ -26,13 +26,13 @@ let mapleader = " " " I tried using just <Space> and it wouldn't work for some r
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NORMAL: How to exit vim
 "
-" <Ctrl+W><Q>       => Exit only if no buffer has unsaved changes
-" <Ctrl+W><X>       => Save all changes and exit
-" <Ctrl+W><Shift+Q> => Exits no matter what (risky)
+" <Ctrl+W><Q> => Exit only if no buffer has unsaved changes
+" <Ctrl+W><X> => Save all changes and exit
+" <Ctrl+W><D> => Exits no matter what (risky)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <C-w>q  <cmd>qa<cr>
-map <C-w>qq <cmd>qa!<cr>
-map <C-w>x  <cmd>xa<cr>
+map <C-w>q <cmd>qa<cr>
+map <C-w>d <cmd>qa!<cr>
+map <C-w>x <cmd>xa<cr>
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

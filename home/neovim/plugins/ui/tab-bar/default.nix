@@ -12,6 +12,8 @@
 
       init = ./init.lua;
 
+      lazy = false;
+
       opts = {
         auto_hide = true;
         exclude_ft = [ "NvimTree" ];
@@ -32,7 +34,6 @@
             {
               path = [ "mode" ];
               update = _: [
-                "i"
                 "n"
                 "x"
               ];
@@ -75,7 +76,7 @@
           }
           {
             lhs = "<leader>bC";
-            rhs = "BufferCloserAllButCurrent";
+            rhs = "BufferCloseAllButCurrentOrPinned";
             desc = "Close all buffers except current";
           }
           {
