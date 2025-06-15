@@ -1,5 +1,8 @@
 { ... }:
 
 {
-  imports = [ ./notifications.nix ];
+  imports = [
+    ./notifications.nix
+    ./telescope.nix
+  ];
 }
