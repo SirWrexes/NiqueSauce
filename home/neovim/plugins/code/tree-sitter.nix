@@ -55,7 +55,7 @@ in
               config = mkLuaInline ''
                 function(_, opts)
                   require("treesitter-context").setup(opts)
-                  vim.cmd [[hi! TreeSitterContextSeparator SignColumn]]
+                  vim.cmd [[hi! link TreeSitterContextSeparator SignColumn]]
                 end
               '';
             }
