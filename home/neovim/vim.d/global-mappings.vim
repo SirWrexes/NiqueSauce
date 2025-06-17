@@ -46,6 +46,14 @@ nmap <leader>W <cmd>w!<cr>
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" NORMAL: Disable currently last search highlights
+"
+" <leader><space>   => Disable currently last search highlights
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nmap <leader><cr> <cmd>noh<cr>
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NORMAL: Manage tabs
 "
 " <leader><T><N> => New tab
