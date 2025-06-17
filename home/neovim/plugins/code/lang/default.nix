@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ./lua
+    ./lua.nix
     ./nix.nix
   ];
 }
