@@ -6,8 +6,14 @@
 }:
 
 let
-  inherit (lib.strings) readFile;
+  inherit (lib.trivial) pipe;
+  inherit (lib.strings) readFile removeSuffix;
   inherit (lib.generators) mkLuaInline;
+  inherit (config.programs.neovim.lazy-nvim) toLua;
+
+  cfg = config.programs.neovim.lazy-nvim.mason;
+
+  pathToModule = path: toLua (removeSuffix ".lua" cfg.luaFiles."${baseNameOf path}".name);
 
   pick-lsp-formatter-nvim = pkgs.vimUtils.buildVimPlugin {
     name = "pick-lsp-formatter-nvim";
@@ -15,7 +21,7 @@ let
       owner = "fmbarina";
       repo = "pick-lsp-formatter.nvim";
       rev = "5c13fcac3e6845dbed0aadd9933cbe118f7877fd";
-      hash = "";
+      hash = "sha256-7Gq9Z/U9lkEGZyIvvAZG2Br8wEtgcGDUrT3AJIkJH9U=";
     };
   };
 in
@@ -23,35 +29,120 @@ in
   options.programs.neovim.lazy-nvim.mason =
     let
       inherit (lib.options) mkOption;
-      inherit (config.programs.neovim.lazy-nvim) toLua types;
-    in 
-  {
-    handler = with types; mkOption {
-      type = nullOr (attrsOf (functioTo luaSnippet))
-      default = _: mkLuaInline ''do end'';
+      inherit (config.programs.neovim.lazy-nvim) types;
+
+      HandlerConfig =
+        with types;
+        submodule {
+          options = {
+            capabilities = mkOption {
+              type = nullOr luaSnippet;
+              default = mkLuaInline ''require("coq").lsp_ensure_capabilities().capabilities'';
+            };
+            on_attach = mkOption {
+              type = nullOr luaSnippet;
+              default = mkLuaInline ''require(${pathToModule ./on_attach.lua})'';
+            };
+            settings = mkOption {
+              type = attrs;
+              default = { };
+            };
+          };
+        };
+    in
+    {
+      ensureInstalled =
+        with types;
+        mkOption {
+          type = listOf str;
+          default = [ ];
+        };
+
+      handlers =
+        with types;
+        mkOption {
+          type = nullOr (attrsOf HandlerConfig);
+          default = { };
+        };
+
+      luaFiles =
+        with types;
+        mkOption {
+          type = attrsOf (submodule {
+            options = {
+              name = mkOption { type = str; };
+              path = mkOption { type = path; };
+            };
+          });
+          visible = false;
+          internal = true;
+        };
     };
-  };
 
   config =
     with pkgs.vimPlugins;
     let
+      inherit (builtins) listToAttrs hashFile;
       inherit (lib.lists) imap0;
+      inherit (lib.attrsets)
+        mergeAttrsList
+        mapAttrs
+        mapAttrs'
+        nameValuePair
+        ;
 
-      # Highest priority loads first
-      priority = imap0 (i: v: { v = i; }) [
-        mason-lspconfig-nvim # 0 -> last loaded
-        nason-null-ls-nvim
-        none-ls-nvim # 2 -> first loaded
+      # Highest pluginPriority loads first
+      pluginPriority =
+        pipe
+          [
+            "mason-lspconfig-nvim" # 0 -> last loaded
+            "mason-null-ls-nvim"
+            "none-ls-nvim" # 2 -> first loaded
+          ]
+          [
+            (imap0 (value: name: { inherit name value; }))
+            listToAttrs
+          ];
+
+      event = [
+        "BufReadPre"
+        "BufNewFile"
       ];
 
-      event = ["BufReadPre" "BufNewFile"];
+      pathToLuaFileInfo =
+        path:
+        let
+          hash = hashFile "sha256" path;
+          baseName = baseNameOf path;
+          name = "${hash}-${baseName}";
+        in
+        {
+          ${baseName} = { inherit path name; };
+        };
     in
     {
+      programs.neovim.lazy-nvim.mason.luaFiles =
+        pipe
+          [ ./on_attach.lua ]
+          [ (map pathToLuaFileInfo) mergeAttrsList ];
+
+      home.file = mapAttrs' (
+        baseName:
+        { name, path }:
+        let
+          target = ".config/nvim/lua/${name}";
+        in
+        nameValuePair target {
+          inherit target;
+          source = path;
+        }
+      ) cfg.luaFiles;
+
       programs.neovim.lazy-nvim.plugins = [
-        rec {
+        {
           package = mason-lspconfig-nvim;
 
-          priority = priority.${package};
+          priority = pluginPriority."mason-lspconfig-nvim";
 
           inherit event;
 
@@ -66,43 +157,30 @@ in
             }
           ];
 
-          # opt.handlers = require "plugins.code.mason.handlers" {
-          #   lspconfig = lspconfig,
-          #   capabilities = capabilities,
-          #   default_on_attach = require "plugins.code.mason.default_on_attach",
-          # }
-          opts = {
-            # TODO TODO TODO TODO TODO TODO TODO
-            # I REPEAT, YOU **MUST** DO THIS
-            # TODO TODO TODO TODO TODO TODO TODO
-            automatic_enable = true;
-          };
-
-          config = 
+          opts =
             let
-              inherit (builtins) hashFile;
-              inherit (config) xdg;
+              inherit (config.programs.neovim.lazy-nvim) toLua;
 
-              hash = hashfile ./on_attach.lua;
-              output = xdg.configFile."nvim/lua/${hash}-on_attach.lua" (readFile ./on_attach.lua);
-              on_attach = baseNameOf output;
-            in 
-          mkLuaInline ''
-            function(_, opts)
-              local masonlsp = require "mason-lspconfig"
-              local capabilities = require("coq").lsp_ensure_capabilities().capabilities
-              local lspconfig = require "lspconfig"
-              local default_on_attach = require(${on_attach})
-
-              masonlsp.setup(opts)
-            end
-          '';
+              handlers = mapAttrs (
+                lang: settings:
+                mkLuaInline ''
+                  function()
+                    require("lspconfig")[${toLua lang}].setup(${toLua settings})
+                  end
+                ''
+              ) cfg.handlers;
+            in
+            {
+              inherit handlers;
+              ensure_installed = cfg.ensureInstalled;
+              automatic_enable = true;
+            };
         }
 
-        rec {
+        {
           package = mason-null-ls-nvim;
 
-          priority = priority.${package};
+          priority = pluginPriority."mason-null-ls-nvim";
 
           inherit event;
 
@@ -113,16 +191,16 @@ in
           '';
         }
 
-        rec {
+        {
           package = none-ls-nvim;
 
-          priority = priority.${package};
+          priority = pluginPriority."none-ls-nvim";
 
           inherit event;
 
           dependencies = [
             { package = plenary-nvim; }
-            { package = mason-null-ls; }
+            { package = mason-null-ls-nvim; }
           ];
 
           config = true;
