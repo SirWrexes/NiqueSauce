@@ -1,14 +1,14 @@
 { lib, config, ... }:
 
 let
+  lazylib = import ./lazy-lib.nix { inherit lib; };
   cfg = config.programs.neovim.lazy-nvim;
-
-  inherit (cfg) types;
 in
 {
   options.programs.neovim.lazy-nvim =
     let
-      inherit (lib.options) mkOption mkPackageOption;
+      inherit (lazylib) types;
+      inherit (lib.options) mkOption;
 
       LazyKey =
         with types;
@@ -60,9 +60,17 @@ in
               default = null;
               description = "Display name for the plugin. If not provided, `lib.meta.getName` will be used on the plugin's package.";
             };
-            package = mkPackageOption pkgs.vimPlugins "plugin" {
+            dir = mkOption {
+              type = nullOr path;
               default = null;
-              extraDescription = "Nix package for the plugin.";
+              description = ''
+                Local directory for the plugin
+              '';
+            };
+            package = mkOption {
+              type = nullOr package;
+              default = null;
+              description = "Nix package for the plugin.";
             };
             dependencies = mkOption {
               type = nullOr (listOf LazySpec);
@@ -282,25 +290,14 @@ in
         mkOption {
           type = nullOr (listOf LazySpec);
           default = [ ];
-          apply = map (
-            { package, dir, ... }@plugin:
-            throwIf (package == null && dir == null) ''
-              No `package` or `dir` field provided for plugin.
-            '' plugin
-          );
+          apply = lazylib.plugins.prepare;
         };
 
       spec =
         with types;
         mkOption {
-          type = attrsOf str;
+          type = listOf luaInline;
           default = { };
-        };
-
-      finalSpec =
-        with types;
-        mkOption {
-          type = listOf attrs;
           visible = false;
           internal = true;
         };
@@ -308,142 +305,18 @@ in
 
   config =
     let
-      inherit (builtins) typeOf;
-      inherit (lib.strings) getName;
-      inherit (lib.trivial) throwIf pipe;
-      inherit (lib.lists) concatMap filter unique;
-      inherit (lib.attrsets) filterAttrs updateManyAttrsByPath;
+      inherit (lib.attrsets) attrNames;
       inherit (lib.generators) mkLuaInline;
-      inherit (types) isType;
-      inherit (cfg) toLua;
+      inherit (lazylib.plugins) removePackageAttribute gatherPackages;
+      inherit (lazylib.modules) toModule;
 
-      isLuaInline = isType "lua-inline";
-
-      stripNulls = filterAttrs (n: v: v != null);
-
-      filterDisabled = filter (
-        {
-          enabled ? false,
-          cond ? false,
-          ...
-        }:
-        enabled != false && cond != false
-      );
-
-      finaliseKeyRhs = rhs: if (typeOf rhs == "set") && (isLuaInline rhs) then rhs.expr else toLua rhs;
-
-      finaliseKeyOpts =
-        let
-          inherit (lib.attrsets) foldlAttrs;
-        in
-        key:
-        pipe key [
-          (
-            key:
-            removeAttrs key [
-              "lhs"
-              "rhs"
-              "desc"
-            ]
-          )
-          stripNulls
-          (foldlAttrs (
-            acc: name: value:
-            acc ++ [ ''["${name}"] = ${toLua value}'' ]
-          ) [ ])
-        ];
-
-      finaliseKey =
-        pluginName:
-        {
-          lhs,
-          rhs ? null,
-          desc ? null,
-          ...
-        }@key:
-        let
-          inherit (lib.strings) concatStringsSep;
-          inherit (builtins) toJSON;
-
-          final =
-            [ (toJSON lhs) ]
-            ++ (if rhs != null then [ (finaliseKeyRhs rhs) ] else [ ])
-            ++ (if desc != null then [ ''["desc"] = "${pluginName}: ${desc}"'' ] else [ ])
-            ++ (finaliseKeyOpts key);
-        in
-        mkLuaInline ''{${concatStringsSep "," final}}'';
-
-      finaliseKeyList =
-        pluginName:
-        map (
-          key:
-          if typeOf key == "string" then
-            key
-          else if typeOf key == "set" then
-            finaliseKey pluginName key
-          else
-            null
-        );
-
-      finaliseSpec =
-        {
-          dir ? null,
-          package ? null,
-          name ? null,
-          dependencies ? null,
-          keys ? null,
-          ...
-        }@plugin:
-        let
-          finalName =
-            if name != null then
-              name
-            else if package != null then
-              getName package
-            else
-              baseNameOf dir;
-        in
-        updateManyAttrsByPath [
-          {
-            path = [ "name" ];
-            update = _: finalName;
-          }
-          {
-            path = [ "dir" ];
-            update = _: if dir != null then dir else package;
-          }
-          {
-            path = [ "package" ];
-            update = _: null;
-          }
-          {
-            path = [ "dependencies" ];
-            update = _: if dependencies != null then finaliseSpecList dependencies else null;
-          }
-          {
-            path = [ "keys" ];
-            update = _: if keys != null then finaliseKeyList finalName keys else null;
-          }
-        ] plugin;
-
-      # TODO: (Maybe) Support nested specs, flaten the results.
-      finaliseSpecList =
-        plugins:
-        map (
-          plugin:
-          pipe plugin [
-            finaliseSpec
-            stripNulls
-          ]
-        ) (filterDisabled plugins);
+      modules = toModule (removePackageAttribute cfg.plugins);
     in
     lib.mkIf cfg.enable {
-      home.file =
-        let
-
-        in
-        pipe cfg.plugins [ ];
-
-      programs.neovim.lazy-nvim.finalSpec = finaliseSpecList cfg.plugins;
+      programs.neovim.extraPackages = gatherPackages cfg.plugins;
+      home.file = modules;
+      programs.neovim.lazy-nvim.spec = map (module: mkLuaInline ''require("${module}")'') (
+        attrNames modules
+      );
     };
 }

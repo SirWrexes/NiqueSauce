@@ -6,14 +6,10 @@
 }:
 
 let
-  inherit (builtins) typeOf;
   inherit (lib.options) mkOption mkPackageOption;
-  inherit (lib.strings) readFile hasSuffix;
-  inherit (lib.generators) mkLuaInline;
+  inherit (import ./lazy-lib.nix { inherit lib; }) types toLua;
 
   cfg = config.programs.neovim.lazy-nvim;
-
-  toLua = lib.generators.toLua { multiline = true; };
 
   mkDescribedEnableOption =
     name: extraDescription:
@@ -25,27 +21,6 @@ let
       example = "true";
     };
 
-  extraTypes = with lib.types; rec {
-    pathIsLua = path: hasSuffix ".lua" "${path}";
-
-    luaFile = addCheck path (pathIsLua) // {
-      name = "luaFile";
-      description = "Path to a Lua source file";
-    };
-
-    luaSnippet = either luaInline luaFile;
-
-    luaPredicate = either bool luaSnippet;
-
-    readLuaSnippet = x: if typeOf x == "path" && pathIsLua x then mkLuaInline (readFile x) else x;
-
-    onlyTrue = addCheck bool (x: x) // {
-      name = "boolTrue";
-      description = "A boolean value that can only be true";
-    };
-  };
-
-  types = lib.types // extraTypes;
 in
 {
   imports = [ ./lazy-spec.nix ];
@@ -133,24 +108,6 @@ in
   };
 
   config =
-    let
-      inherit (lib.lists) concatMap unique;
-
-      flattenDepsTree = concatMap (
-        {
-          dependencies,
-          package,
-          enabled,
-          cond,
-          ...
-        }:
-        if enabled != false && cond != false then
-          (if package != null then [ package ] else [ ])
-          ++ (if dependencies != null then flattenDepsTree dependencies else [ ])
-        else
-          [ ]
-      );
-    in
     lib.mkIf
       (
         cfg.enable
@@ -164,10 +121,8 @@ in
         ''
       )
       {
-        programs.neovim = {
-          extraLuaPackages = luapkgs: with luapkgs; [ rocks-nvim ];
-          extraPackages = [ cfg.package ] ++ unique (flattenDepsTree cfg.plugins);
-        };
+        programs.neovim.extraLuaPackages = luapkgs: with luapkgs; [ rocks-nvim ];
+        programs.neovim.extraPackages = [ cfg.package ];
 
         # Keep the empty lines above and below the lua code to prevent the statements
         # sticking to other lines during concatenation.
@@ -176,6 +131,9 @@ in
           vim.opt.rtp:prepend("${cfg.package}")
           require("lazy").setup(${
             toLua {
+              # Spec definition and plugin package install is defined in laz-spec.nix
+              inherit (cfg) spec;
+
               # Disable automatic plugin updates.
               # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
               checker.enable = false;
@@ -186,7 +144,6 @@ in
 
               lazy = cfg.lazyByDefault;
               cond = cfg.defaultEnablePredicate;
-              spec = cfg.finalSpec;
             }
           })
 

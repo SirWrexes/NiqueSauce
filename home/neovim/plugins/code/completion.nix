@@ -24,7 +24,9 @@ in
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
       name = "Coq";
+
       package = coq_nvim;
+
       dependencies = [
         { package = coq-artifacts; }
         { package = coq-thirdparty; }
