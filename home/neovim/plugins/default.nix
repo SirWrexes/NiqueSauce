@@ -4,7 +4,7 @@
   programs.neovim.lazy-nvim.enable = true;
 
   imports = [
-    ./lazy-nvim.nix
+    ./lazy-nvim
 
     ./apis
     ./code

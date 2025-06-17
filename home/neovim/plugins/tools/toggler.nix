@@ -1,6 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
+  inherit (lib.generators) mkLuaInline;
+
   smart-toggler = pkgs.vimUtils.buildVimPlugin {
     name = "nvim-toggler-smart";
     src = pkgs.fetchFromGitHub {
@@ -16,11 +18,19 @@ in
     {
       package = smart-toggler;
 
-      keys = [ "<leader>i" ];
+      keys = [
+        {
+          lhs = "<leader>i";
+          rhs = mkLuaInline ''
+            function() require("nvim-toggler").toggle() end
+          '';
+        }
+      ];
 
       opts.inverses = {
         "based" = "cringe";
         "inner" = "outer";
+        "true" = "false";
         "<" = ">";
         "<=" = ">=";
         "&&" = "||";

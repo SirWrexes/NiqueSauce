@@ -1,9 +1,11 @@
 { ... }:
 
+# TODO: Rename module into "utils"
 {
   imports = [
     ./undotree
 
+    ./auto-pairs.nix
     ./discord-rtp.nix
     ./images-in-markdown.nix
     ./keymap-reminder.nix

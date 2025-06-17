@@ -282,6 +282,19 @@ in
         mkOption {
           type = nullOr (listOf LazySpec);
           default = [ ];
+          apply = map (
+            { package, dir, ... }@plugin:
+            throwIf (package == null && dir == null) ''
+              No `package` or `dir` field provided for plugin.
+            '' plugin
+          );
+        };
+
+      spec =
+        with types;
+        mkOption {
+          type = attrsOf str;
+          default = { };
         };
 
       finalSpec =
@@ -316,17 +329,6 @@ in
         }:
         enabled != false && cond != false
       );
-
-      ensureHasPackageOrDir =
-        {
-          package ? null,
-          dir ? null,
-          ...
-        }@plugin:
-        throwIf (package == null && dir == null) ''
-          No package or dir attribute provided.
-          Spec: ${toString (stripNulls plugin)}
-        '' plugin;
 
       finaliseKeyRhs = rhs: if (typeOf rhs == "set") && (isLuaInline rhs) then rhs.expr else toLua rhs;
 
@@ -430,15 +432,18 @@ in
         map (
           plugin:
           pipe plugin [
-            ensureHasPackageOrDir
             finaliseSpec
             stripNulls
           ]
         ) (filterDisabled plugins);
     in
     lib.mkIf cfg.enable {
-      programs.neovim.lazy-nvim = {
-        finalSpec = finaliseSpecList cfg.plugins;
-      };
+      home.file =
+        let
+
+        in
+        pipe cfg.plugins [ ];
+
+      programs.neovim.lazy-nvim.finalSpec = finaliseSpecList cfg.plugins;
     };
 }

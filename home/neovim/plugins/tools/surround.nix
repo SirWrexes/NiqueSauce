@@ -12,10 +12,19 @@ in
         "ys"
         "ds"
         "cs"
-        "S"
+        {
+          # Explicitly tell modes here to ensure it starts on using S in visual mode
+          lhs = "S";
+          mode = [
+            "n"
+            "x"
+          ];
+        }
       ];
 
       init = mkLuaInline ''function() vim.keymap.del({"n"}, "S") end'';
+
+      config = true;
     }
   ];
 }

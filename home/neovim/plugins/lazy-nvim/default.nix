@@ -13,7 +13,7 @@ let
 
   cfg = config.programs.neovim.lazy-nvim;
 
-  toLua = lib.generators.toLua { multiline = false; };
+  toLua = lib.generators.toLua { multiline = true; };
 
   mkDescribedEnableOption =
     name: extraDescription:
@@ -57,7 +57,7 @@ in
         mentioning Lua function signatures as their accepted type. It means that the option,
         if you chose to use Lua code for it, must receive a value of type `lib.types.luaInline`
         or a path to a Lua file that will be read by this module.
-        
+
         Aside from the type checking of the Nix value, there is no way to verify what you
         pass to those options is valid Lua code. It is up to you to make sure that you properly
         wrote your Lua snippet.
@@ -165,11 +165,7 @@ in
       )
       {
         programs.neovim = {
-          extraLuaPackages =
-            luapkgs: with luapkgs; [
-              luarocks
-              # rocks-nvim # XXX: Keep an eye on https://github.com/nvim-neorocks/rocks.nvim
-            ];
+          extraLuaPackages = luapkgs: with luapkgs; [ rocks-nvim ];
           extraPackages = [ cfg.package ] ++ unique (flattenDepsTree cfg.plugins);
         };
 
