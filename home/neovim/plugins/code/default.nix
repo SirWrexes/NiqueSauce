@@ -1,9 +1,8 @@
-{ ... }:
+{ lib, ... }:
 
 {
   imports = [
     ./lang
-    ./mason
 
     ./code-actions-menu.nix
     ./comment.nix
@@ -11,4 +10,9 @@
     ./tree-hopper.nix
     ./tree-sitter.nix
   ];
+
+  programs.neovim.lazy-nvim.mason = {
+    enable = true;
+    defaultOnAttach = ./defaultLspOnAttach.lua;
+  };
 }

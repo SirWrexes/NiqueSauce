@@ -48,4 +48,8 @@ in
       '';
     }
   ];
+
+  programs.neovim.lazy-nvim.mason.defaultCapabilities = mkLuaInline ''
+    require("coq").lsp_ensure_capabilities().capabilities
+  '';
 }

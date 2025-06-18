@@ -8,14 +8,7 @@
 
     lazy-nvim = {
       treesitter.parsers = tsparsers: with tsparsers; [ nix ];
-      mason =
-        let
-          ls = "nil_ls";
-        in
-        {
-          ensureInstalled = [ ls ];
-          handlers.${ls} = { };
-        };
+      mason.ensureInstalled = [ "nil_ls" ];
     };
   };
 }

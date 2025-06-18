@@ -1,8 +1,5 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 
-let
-  languageServer = "lua_ls";
-in
 {
   programs.neovim.lazy-nvim = {
     plugins = with pkgs.vimPlugins; [
@@ -21,7 +18,7 @@ in
           }
           {
             path = "LazyVim";
-            words = ["LazyVim"];
+            words = [ "LazyVim" ];
           }
         ];
       }
@@ -33,8 +30,7 @@ in
 
     treesitter.parsers = tsparsers: with tsparsers; [ lua ];
 
-    mason.ensureInstalled = [ languageServer ];
-    mason.handlers.${languageServer} = {
+    mason.handlers.lua_ls = {
       settings.Lua = {
         hint.enable = true;
         completion.callSnippet = "Replace";
