@@ -5,6 +5,7 @@ let
   inherit (lib.attrsets) filterAttrs mergeAttrsList foldlAttrs;
   inherit (lib.generators) mkLuaInline;
   inherit (lib.lists) filter concatMap unique;
+  inherit (lib.options) mkOption;
   inherit (lib.strings)
     concatStringsSep
     getName
@@ -21,8 +22,8 @@ rec {
     // (with lib.types; rec {
       pathIsLua = path: hasSuffix ".lua" "${path}";
 
-      luaFile = addCheck path (pathIsLua) // {
-        name = "luaFile";
+      luaFile = (addCheck path pathIsLua) // {
+        name = "lua-file";
         description = "Path to a Lua source file";
       };
 
@@ -39,6 +40,18 @@ rec {
         description = "A boolean value that can only be true";
       };
     });
+
+  options = lib.options // rec {
+    mkDescribedEnableOption =
+      name: extraDescription:
+      with types;
+      mkOption {
+        type = bool;
+        default = false;
+        description = "Whether to enable ${name}.\n" + extraDescription;
+        example = "true";
+      };
+  };
 
   attrsets = {
     stripNulls = filterAttrs (_: v: v != null);
@@ -203,26 +216,49 @@ rec {
               [ ]
           ) plugins
         );
+
+      toModule =
+        { name, ... }@plugin:
+        modules.toModule "spec" {
+          inherit name;
+          text = ''return ${toLua plugin}'';
+        };
+
+      toModules = specs: mergeAttrsList (map toModule specs);
     };
 
   modules = rec {
-    generatedModulesDir = "generated/lazy-nvim/spec";
+    generatedModulesDir = "generated/lazy-nvim";
 
     toModule =
+      subpath:
+      {
+        name,
+        text ? null,
+        source ? null,
+      }:
       let
-        transform =
-          { name, ... }@plugin:
-          let
-            text = ''return ${toLua plugin}'';
-            hash = hashString "sha256" text;
-            identifier = replaceStrings [ "." ] [ "-" ] "${hash}-${name}";
-            target = ".config/nvim/lua/${generatedModulesDir}/${identifier}.lua";
-            requirePath = replaceStrings [ "/" ] [ "." ] "${generatedModulesDir}/${identifier}";
-          in
-          {
-            ${requirePath} = { inherit text target; };
-          };
+        content =
+          if text != null then
+            text
+          else if source != null then
+            readFile source
+          else
+            throw ''No text or source provided.'';
+        hash = hashString "sha256" content;
+        identifier = replaceStrings [ "." ] [ "-" ] "${hash}-${name}";
+        target = ".config/nvim/lua/${generatedModulesDir}/${subpath}/${identifier}.lua";
+        requirePath =
+          replaceStrings [ "/" ] [ "." ]
+            "${generatedModulesDir}${if subpath != "." then "/${subpath}" else ""}/${identifier}";
       in
-      spec: if typeOf spec == "set" then transform spec else mergeAttrsList (map transform spec);
+      {
+        ${requirePath} = {
+          inherit target;
+          text = content;
+        };
+      };
+
+    toModules = subpath: list: mergeAttrsList (map toModule subpath list);
   };
 }

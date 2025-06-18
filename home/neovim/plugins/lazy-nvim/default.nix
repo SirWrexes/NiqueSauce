@@ -6,24 +6,18 @@
 }:
 
 let
-  inherit (lib.options) mkOption mkPackageOption;
-  inherit (import ./lazy-lib.nix { inherit lib; }) types toLua;
+  lazylib = import ./lib { inherit lib; };
+
+  inherit (lazylib) types toLua;
+  inherit (lazylib.options) mkOption mkPackageOption mkDescribedEnableOption;
 
   cfg = config.programs.neovim.lazy-nvim;
-
-  mkDescribedEnableOption =
-    name: extraDescription:
-    with lib.types;
-    mkOption {
-      type = bool;
-      default = false;
-      description = "Whether to enable ${name}.\n" + extraDescription;
-      example = "true";
-    };
-
 in
 {
-  imports = [ ./lazy-spec.nix ];
+  imports = [
+    ./lazy-spec.nix
+    ./mason.nix
+  ];
 
   options.programs.neovim.lazy-nvim = {
     enable = mkDescribedEnableOption "LazyVim plugin manager for NeoVim" ''
@@ -104,7 +98,7 @@ in
         internal = true;
       };
 
-    package = mkPackageOption pkgs.vimPlugins [ "lazy-nvim" ] { };
+    package = mkPackageOption pkgs [ "vimPlugins" "lazy-nvim" ] { };
   };
 
   config =
