@@ -1,10 +1,27 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
+let
+  inherit (lib.generators) mkLuaInline;
+in
 {
   programs.neovim.lazy-nvim = {
     plugins = with pkgs.vimPlugins; [
       {
         package = lazydev-nvim;
+
+        dependencies = [
+          {
+            package = pkgs.lua-language-server;
+
+            ft = "lua";
+
+            config = mkLuaInline ''
+              function(_, opts)
+                require("lspconfig").lua_ls.setup(opts)
+              end
+            '';
+          }
+        ];
 
         ft = "lua";
 
@@ -22,23 +39,11 @@
           }
         ];
       }
+
       {
         package = luvit-meta;
         lazy = true;
       }
     ];
-
-    treesitter.parsers = tsparsers: with tsparsers; [ lua ];
-
-    mason.handlers.lua_ls = {
-      settings.Lua = {
-        hint.enable = true;
-        completion.callSnippet = "Replace";
-      };
-    };
   };
-
-  programs.neovim.extraPackages = with pkgs; [
-    unzip # Required for installation of `stylua`
-  ];
 }
