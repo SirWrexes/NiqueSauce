@@ -2,8 +2,9 @@
 
 {
   imports = [
+    ./nix
+
     ./lua.nix
-    ./nix.nix
     ./yaml.nix
   ];
 }

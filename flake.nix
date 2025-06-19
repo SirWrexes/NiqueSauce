@@ -13,6 +13,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       nixpkgs-unstable,
       home-manager,
@@ -36,7 +37,10 @@
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "old";
               home-manager.users.wrexes = ./home;
-              home-manager.extraSpecialArgs = { inherit nix-colors pkgs'; };
+              home-manager.extraSpecialArgs = {
+                inherit nix-colors pkgs';
+                root = self;
+              };
             }
           ];
         };

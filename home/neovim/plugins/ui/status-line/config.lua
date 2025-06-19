@@ -1,3 +1,5 @@
+do
+
 -- Only have one statusbar at the bottom
 vim.o.laststatus = 3
 
@@ -14,4 +16,20 @@ vim.o.statusline = [[%{''}]]
 --    %f — Relative filename or as provided in the edit command
 --    %m — Modified or unmodifiable flag
 --    %= — Padding (next items are right aligned)
-vim.o.winbar = [[%n%=%f%m%=L%l/%L:%c (%p%%)]]
+local winbar = [[%n%=%f%m%=L%l/%L:%c (%p%%)]]
+
+local winbar_exclude_ft = {
+  "NvimTree"
+}
+
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  group = vim.api.nvim_create_augroup("WinbarExcludeFt", {}),
+  callback = function()
+    vim.opt_local.winbar =
+      vim.tbl_contains(winbar_exclude_ft, vim.bo.filetype)
+        and nil
+        or winbar
+  end
+})
+
+end

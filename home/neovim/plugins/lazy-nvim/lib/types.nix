@@ -2,9 +2,10 @@
 
 let
   inherit (builtins) readFile typeOf;
+
+  inherit (lib.generators) mkLuaInline;
   inherit (lib.strings) hasSuffix;
   inherit (lib.types) addCheck;
-  inherit (lib.generators) mkLuaInline;
 in
 lib.types
 // (with lib.types; rec {
@@ -12,7 +13,7 @@ lib.types
 
   luaFile = addCheck path pathIsLua // {
     name = "lua-file";
-    description = "Path to a Lua source file";
+    description = "path to a Lua source file";
   };
 
   luaSnippet = either luaInline luaFile;

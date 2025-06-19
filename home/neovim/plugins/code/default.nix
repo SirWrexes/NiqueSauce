@@ -1,18 +1,29 @@
-{ lib, ... }:
+{ ... }:
 
 {
   imports = [
+    ./cursor-context
     ./lang
 
     ./code-actions-menu.nix
     ./comment.nix
     ./completion.nix
+    ./formatting.nix
     ./tree-hopper.nix
     ./tree-sitter.nix
   ];
 
-  programs.neovim.lazy-nvim.mason = {
-    enable = true;
-    defaultOnAttach = ./defaultLspOnAttach.lua;
-  };
+  programs.neovim.lazy-nvim.mason.enable = true;
+
+  programs.neovim.extraLuaConfig = ''
+
+    vim.keymap.set(
+      {'n', 'i'},
+      '<M-i>',
+      function()
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+      end
+    );
+
+  '';
 }

@@ -14,9 +14,11 @@ let
   };
 in
 {
-  programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
+  programs.neovim.lazy-nvim.plugins = [
     {
       package = smart-toggler;
+
+      enabled = false;
 
       keys = [
         {

@@ -37,4 +37,8 @@
       };
     };
   };
+
+  programs.neovim.extraPackages = with pkgs; [
+    unzip # Required for installation of `stylua`
+  ];
 }

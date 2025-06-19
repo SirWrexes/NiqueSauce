@@ -1,7 +1,10 @@
 { ... }:
 
 {
-  programs.neovim.lazy-nvim.enable = true;
+  programs.neovim.lazy-nvim = {
+    enable = true;
+    # transformGeneratedLua = "pretty";
+  };
 
   imports = [
     ./lazy-nvim

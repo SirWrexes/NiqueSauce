@@ -57,7 +57,7 @@ rec {
           description = "Display name for the plugin. If not provided, `lib.meta.getName` will be used on the plugin's package.";
         };
         dir = mkOption {
-          type = nullOr path;
+          type = nullOr (either path str);
           default = null;
           description = ''
             Local directory for the plugin
@@ -77,7 +77,7 @@ rec {
           '';
         };
         enabled = mkOption {
-          type = nullOr luaSnippet;
+          type = nullOr luaPredicate;
           default = null;
           description = ''
             When false, or if the function returns false, then this plugin will not be included in the spec.
@@ -90,7 +90,7 @@ rec {
           apply = readLuaSnippet;
         };
         cond = mkOption {
-          type = nullOr luaSnippet;
+          type = nullOr luaPredicate;
           default = null;
           description = ''
             Behaves the same as `enabled`, but won't uninstall the plugin when the condition is false.
@@ -155,7 +155,7 @@ rec {
               { package = pkgs.vimPlugins.lazydev-nvim; opts = { ... }; },
               ```
 
-                BAD
+                BAD (most of the times)
               ```
               {
                 package = pkgs.vimPlugins.lazydev-nvim;

@@ -25,7 +25,6 @@ in
         mkOption {
           type = listOf luaInline;
           default = { };
-          visible = false;
           internal = true;
         };
     };
