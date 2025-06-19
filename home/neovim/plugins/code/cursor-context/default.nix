@@ -8,5 +8,5 @@
     }
   ];
 
-  programs.neovim.lazy-nvim.mason.defaultOnAttach = [ ./onAttach.lua ];
+  programs.neovim.lazy-nvim.lspconfig.defaultOnAttach = [ ./onAttach.lua ];
 }

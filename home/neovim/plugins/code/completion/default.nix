@@ -50,7 +50,7 @@ in
     }
   ];
 
-  programs.neovim.lazy-nvim.mason.defaultCapabilities = mkLuaInline ''
+  programs.neovim.lazy-nvim.lspconfig.defaultCapabilities = mkLuaInline ''
     require("coq").lsp_ensure_capabilities().capabilities
   '';
 }

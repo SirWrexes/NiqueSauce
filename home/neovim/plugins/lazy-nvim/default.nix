@@ -19,7 +19,7 @@ in
 {
   imports = [
     ./lazy-spec.nix
-    ./mason.nix
+    ./lspconfig.nix
   ];
 
   options.programs.neovim.lazy-nvim = {

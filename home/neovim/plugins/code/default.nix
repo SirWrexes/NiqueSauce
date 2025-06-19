@@ -13,8 +13,6 @@
     ./tree-sitter.nix
   ];
 
-  programs.neovim.lazy-nvim.mason.enable = true;
-
   programs.neovim.extraLuaConfig = ''
 
     vim.keymap.set(

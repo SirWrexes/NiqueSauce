@@ -12,7 +12,10 @@
 
       init = ./init.lua;
 
-      event = "BufNew";
+      event = [
+        "BufNew"
+        "BufWinEnter"
+      ];
 
       opts = {
         auto_hide = true;
