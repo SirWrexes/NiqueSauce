@@ -12,7 +12,7 @@
 
       init = ./init.lua;
 
-      lazy = false;
+      event = "BufNew";
 
       opts = {
         auto_hide = true;
@@ -48,89 +48,91 @@
             }
           ]);
         in
-        mkKeys [
-          {
-            lhs = "<S-PageUp>";
-            rhs = "BufferPrevious";
-            desc = "Move to previous buffer";
-          }
-          {
-            lhs = "<S-PageDown>";
-            rhs = "BufferNext";
-            desc = "Move to next buffer";
-          }
-          {
-            lhs = "<C-,>";
-            rhs = "BufferMovePrevious";
-            desc = "Move buffer tab left";
-          }
-          {
-            lhs = "<C-.>";
-            rhs = "BufferMoveNext";
-            desc = "Move buffer tab right";
-          }
-          {
-            lhs = "<leader>bc";
-            rhs = "BufferClose";
-            desc = "Close current buffer";
-          }
-          {
-            lhs = "<leader>bC";
-            rhs = "BufferCloseAllButCurrentOrPinned";
-            desc = "Close all buffers except current";
-          }
-          {
-            lhs = "<leader>bx";
-            rhs = "up | BufferClose";
-            desc = "Save changes and close buffer";
-          }
-          {
-            lhs = "<leader>bd";
-            rhs = "BufferClose!";
-            desc = "Close buffer without saving";
-          }
-          {
-            lhs = "<leader>bp";
-            rhs = "BufferPick";
-            desc = "Open buffer picker";
-          }
-          {
-            lhs = "<leader>bon";
-            rhs = "BufferOrderByNumber";
-            desc = "Order buffers by number";
-          }
-          {
-            lhs = "<leader>bod";
-            rhs = "BufferOrderByDirectory";
-            desc = "Order buffers by directory";
-          }
-          {
-            lhs = "<leader>bol";
-            rhs = "BufferOrderByLanguage";
-            desc = "Order buffers by language";
-          }
-          {
-            lhs = "<leader>bow";
-            rhs = "BufferOrderByWindowNumber";
-            desc = "Order buffers by window number";
-          }
-          {
-            lhs = "<C-0>";
-            rhs = "BufferLast";
-            desc = "Jump to buffer in last position";
-          }
-        ]
-        ++ (genList (
-          x:
-          let
-            n = toString (x + 1);
-          in
-          {
-            lhs = "<C-${n}>";
-            rhs = "BufferGoto ${n}";
-            desc = "Jump to buffer ${n}";
-          }
-        ) 8);
+        mkKeys (
+          [
+            {
+              lhs = "<S-PageUp>";
+              rhs = "BufferPrevious";
+              desc = "Move to previous buffer";
+            }
+            {
+              lhs = "<S-PageDown>";
+              rhs = "BufferNext";
+              desc = "Move to next buffer";
+            }
+            {
+              lhs = "<C-,>";
+              rhs = "BufferMovePrevious";
+              desc = "Move buffer tab left";
+            }
+            {
+              lhs = "<C-.>";
+              rhs = "BufferMoveNext";
+              desc = "Move buffer tab right";
+            }
+            {
+              lhs = "<leader>bc";
+              rhs = "BufferClose";
+              desc = "Close current buffer";
+            }
+            {
+              lhs = "<leader>bC";
+              rhs = "BufferCloseAllButCurrentOrPinned";
+              desc = "Close all buffers except current";
+            }
+            {
+              lhs = "<leader>bx";
+              rhs = "up | BufferClose";
+              desc = "Save changes and close buffer";
+            }
+            {
+              lhs = "<leader>bd";
+              rhs = "BufferClose!";
+              desc = "Close buffer without saving";
+            }
+            {
+              lhs = "<leader>bp";
+              rhs = "BufferPick";
+              desc = "Open buffer picker";
+            }
+            {
+              lhs = "<leader>bon";
+              rhs = "BufferOrderByNumber";
+              desc = "Order buffers by number";
+            }
+            {
+              lhs = "<leader>bod";
+              rhs = "BufferOrderByDirectory";
+              desc = "Order buffers by directory";
+            }
+            {
+              lhs = "<leader>bol";
+              rhs = "BufferOrderByLanguage";
+              desc = "Order buffers by language";
+            }
+            {
+              lhs = "<leader>bow";
+              rhs = "BufferOrderByWindowNumber";
+              desc = "Order buffers by window number";
+            }
+            {
+              lhs = "<C-0>";
+              rhs = "BufferLast";
+              desc = "Jump to buffer in last position";
+            }
+          ]
+          ++ (genList (
+            x:
+            let
+              n = toString (x + 1);
+            in
+            {
+              lhs = "<M-${n}>";
+              rhs = "BufferGoto ${n}";
+              desc = "Jump to buffer ${n}";
+            }
+          ) 8)
+        );
     }
   ];
 }

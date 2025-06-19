@@ -9,7 +9,6 @@ let
   inherit (lib) types;
   inherit (lib.options) mkOption;
   inherit (lib.generators) mkLuaInline;
-  inherit (config.programs.neovim.lazy-nvim) toLua;
 
   cfg = config.programs.neovim.lazy-nvim.treesitter;
 in
@@ -70,13 +69,12 @@ in
 
         init = mkLuaInline ''
           function()
-            vim.opt.folmethod = "expr"
+            vim.opt.foldmethod = "expr"
             vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()";
-            vim.opt.foldlevel = 99
-            vim.opt.foldlevelstart = 1
             vim.opt.foldnestmax = 4
+            vim.opt.foldlevelstart = 3
           end
-        ''
+        '';
 
         opts = {
           auto_install = false;

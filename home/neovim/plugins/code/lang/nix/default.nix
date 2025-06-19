@@ -25,7 +25,6 @@ in
           let
             inherit (builtins) toFile toJSON;
             inherit (osConfig.networking) hostName;
-            inherit (osConfig.home) user homeDirectory;
 
             wrapper = toFile "expr.nix" ''
               import ${./findFlake.nix} {

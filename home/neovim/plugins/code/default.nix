@@ -2,12 +2,12 @@
 
 {
   imports = [
+    ./completion
     ./cursor-context
     ./lang
 
     ./code-actions-menu.nix
     ./comment.nix
-    ./completion.nix
     ./formatting.nix
     ./tree-hopper.nix
     ./tree-sitter.nix

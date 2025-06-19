@@ -30,6 +30,7 @@ in
       dependencies = [
         { package = coq-artifacts; }
         { package = coq-thirdparty; }
+        (import ./luasnip.nix { inherit pkgs lib; })
       ];
 
       event = "InsertEnter";
