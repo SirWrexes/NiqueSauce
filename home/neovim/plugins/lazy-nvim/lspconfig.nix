@@ -78,6 +78,21 @@ in
               - If you haven't defined one, it will automatically be set to `function(_, opts) require("lspconfig").<SERVER>.setup(opts) end`.
                 `opts` will be extended with default `capabilities` and `on_attach`.
                 If you do not want that, you can set them to `false` in your spec's `opts`.
+              - The language server will automatically be enabled with `vim.lsp.enable()` during the init phase.
+          '';
+          example = literalExpression ''
+            programs.neovim.lazy-nvim.lspconfig.servers.lua_ls = {
+              package = pkgs.lua-language-server;
+
+              dependencies = [ { package = pkgs.vimPlugins.lazydev-nvim; } ];
+
+              ft = "lua";
+
+              opts.settings.Lua = {
+                hint.enable = true;
+                completion.callSnippet = "Replace";
+              };
+            };
           '';
         };
     };
@@ -168,9 +183,31 @@ in
         else
           throw ''Lua file `config` is not supported.'';
 
+      setInit =
+        server: init:
+        if init == null then
+          mkLuaInline ''
+            function()
+              vim.lsp.enable(${toLua server})
+            end
+          ''
+        else if isLuaInline init then
+          mkLuaInline ''
+            function(self)
+              vim.lsp.enable(${toLua server})
+              (${init.expr})(self)
+            end
+          ''
+        else
+          throw ''Lua file `init` is not supported.'';
+
       setDefaults =
         server: spec:
         updateManyAttrsByPath [
+          {
+            path = [ "init" ];
+            update = setInit server;
+          }
           {
             path = [ "config" ];
             update = setConfig server;
