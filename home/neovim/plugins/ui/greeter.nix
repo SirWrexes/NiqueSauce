@@ -1,5 +1,6 @@
 { pkgs, ... }:
 
+# TODO: Find a way to make it work with the current LazyNvim trick of using VimEnter
 {
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
