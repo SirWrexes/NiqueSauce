@@ -43,7 +43,7 @@ in
       Make all plugins lazy by default. Note that this could end up in some plugins never actually
       activating, or worse even, wrong order of loading which could result in broken dependcy chains.
 
-      Quote from Folke's docs: 
+      Quote from Folke's docs:
       > Set this to `true` to have all your plugins lazy-loaded by default.
       > Only do this if you know what you are doing, as it can lead to unexpected behavior.
 
@@ -160,30 +160,46 @@ in
 
         # Keep the empty lines above and below the lua code to prevent the statements
         # sticking to other lines during concatenation.
+
+        # VimEnter is used to start Lazy in order for all potential lua configs to be evaluated beforehand.
+        # This prevents problems like `<leader>...` mappings being incorrectly set to `\...` instead of
+        # whatever the user set their mapleader to.
         programs.neovim.extraLuaConfig = ''
 
-          vim.opt.rtp:prepend("${cfg.package}")
-          vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
-            silent = true,
-            noremap = true,
-          })
-          require("lazy").setup(${
-            toLua {
-              # Spec definition and plugin package install is defined in laz-spec.nix
-              inherit (cfg) spec;
+          	  do
+          	    local function init_lazy()
 
-              # Disable automatic plugin updates.
-              # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
-              checker.enable = false;
+                        vim.opt.rtp:prepend("${cfg.package}")
 
-              # Prevent Lazy.nvim from installing missing plugins.
-              # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
-              install.missing = true;
+                        vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
+                          silent = true,
+                          noremap = true,
+                        })
 
-              lazy = cfg.lazyByDefault;
-              cond = cfg.defaultEnablePredicate;
-            }
-          })
+                        require("lazy").setup(${
+                          toLua {
+                            # Spec definition and plugin package install is defined in laz-spec.nix
+                            inherit (cfg) spec;
+
+                            # Disable automatic plugin updates.
+                            # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
+                            checker.enable = false;
+
+                            # Prevent Lazy.nvim from installing missing plugins.
+                            # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
+                            install.missing = true;
+
+                            lazy = cfg.lazyByDefault;
+                            cond = cfg.defaultEnablePredicate;
+                          }
+                        })
+          	    end
+
+          	    vim.api.nvim_create_autocmd('VimEnter', {
+                        group = vim.api.nvim_create_augroup("InitLazy", {}),
+          	      callback = init_lazy,
+          	    })
+          	  end
 
         '';
       };

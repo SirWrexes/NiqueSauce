@@ -214,7 +214,8 @@ in
           }
           {
             path = [ "dependencies" ];
-            update = deps: deps ++ [ { package = pkgs.vimPlugins.nvim-lspconfig; } ];
+            update =
+              deps: (if deps == null then [ ] else deps) ++ [ { package = pkgs.vimPlugins.nvim-lspconfig; } ];
           }
         ] spec;
 
