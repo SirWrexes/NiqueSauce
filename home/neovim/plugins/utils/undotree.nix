@@ -5,7 +5,10 @@
     {
       package = undotree;
 
-      init = ./init.lua;
+      init = mkLuaInline ''
+        vim.opt.undofile = true
+        vim.g.undotree_WindowLayout = 4
+      '';
 
       keys = [
         {

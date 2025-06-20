@@ -3,6 +3,7 @@
 {
   programs.neovim.lazy-nvim = {
     enable = true;
+    # TODO Find how to make this possible
     # transformGeneratedLua = "pretty";
   };
 
@@ -11,7 +12,7 @@
 
     ./apis
     ./code
-    ./tools
     ./ui
+    ./utils
   ];
 }

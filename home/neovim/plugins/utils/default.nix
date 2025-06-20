@@ -3,8 +3,6 @@
 # TODO: Rename module into "utils"
 {
   imports = [
-    ./undotree
-
     ./auto-pairs.nix
     ./discord-rtp.nix
     ./images-in-markdown.nix
@@ -13,6 +11,7 @@
     ./structural-search-and-replace.nix
     ./surround.nix
     ./toggler.nix
+    ./undotree.nix
     ./wakatime.nix
   ];
 }
