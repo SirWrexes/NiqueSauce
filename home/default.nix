@@ -63,6 +63,9 @@ in
 
     # The best media player
     mpv.enable = true;
+
+    # CLI task manager
+    btop.enable = true;
   };
 
   services = {

@@ -6,6 +6,8 @@ let
     [
       "$mod,        0, workspace      , 10"
       "SUPER_SHIFT, 0, movetoworkspace, 10"
+
+      "CONTROLALT, Delete, exec, btop"
     ]
     ++ concatLists (
       genList (
