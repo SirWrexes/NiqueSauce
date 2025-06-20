@@ -36,16 +36,30 @@
               }
             '';
 
-        withFlakes = expr: "with import ${wrapper}; ${expr}";
+        withFlakes =
+          expr:
+          # nix
+          "with import ${wrapper}; ${expr}";
       in
       {
         cmd = [ "nixd" ];
         settings.nixd = {
-          nixpkgs.expr = withFlakes "import (if local ? lib.version then local else local.inputs.nixpkgs or global.inputs.nixpkgs) {}";
+          nixpkgs.expr =
+            withFlakes
+              # nix
+              "import (if local ? lib.version then local else local.inputs.nixpkgs or global.inputs.nixpkgs) {}";
           options = rec {
-            flake-parts.expr = withFlakes "local.debug.options or global.debug.options";
-            nixos.expr = withFlakes "global.nixosConfigurations.${hostName}.options";
-            home-manager.expr = "${nixos.expr}.home-manager.users.type.getSubOptions []";
+            flake-parts.expr =
+              withFlakes
+                # nix
+                "local.debug.options or global.debug.options";
+            nixos.expr =
+              withFlakes
+                # nix
+                "global.nixosConfigurations.${hostName}.options";
+            home-manager.expr =
+              # nix
+              "${nixos.expr}.home-manager.users.type.getSubOptions []";
           };
         };
       };

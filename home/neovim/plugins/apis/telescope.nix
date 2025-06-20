@@ -25,24 +25,44 @@ in
         { package = scope-nvim; }
       ];
 
-      config = mkLuaInline ''
-        function(_, opts)
-          local tele = require "telescope"
-          tele.setup(opts)
-          tele.load_extension "fzf"
-          tele.load_extension "scope"
-        end
-      '';
+      config =
+        mkLuaInline
+          # lua
+          ''
+            function(_, opts)
+              local tele = require "telescope"
+              tele.setup(opts)
+              tele.load_extension "fzf"
+              tele.load_extension "scope"
+            end
+          '';
 
       keys =
         let
           inherit (config.programs.neovim.lazy-nvim) toLua;
           inherit (lib.attrsets) updateManyAttrsByPath;
 
-          tele = cmd: mkLuaInline ''function() require("telescope.builtin").${cmd}() end'';
+          tele =
+            cmd:
+            mkLuaInline
+              # lua
+              ''
+                function() require("telescope.builtin").${cmd}() end
+              '';
+
           tele' =
-            cmd: opts: mkLuaInline ''function() require("telescope.builtin").${cmd}(${toLua opts}) end'';
-          ext = cmd: mkLuaInline ''require("telescope").extensions.${cmd}'';
+            cmd: opts:
+            mkLuaInline
+              # lua
+              ''
+                function() require("telescope.builtin").${cmd}(${toLua opts}) end
+              '';
+
+          ext =
+            cmd:
+            mkLuaInline
+              # lua
+              ''require("telescope").extensions.${cmd}'';
 
           mkKeys = map (updateManyAttrsByPath [
             {

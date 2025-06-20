@@ -337,13 +337,16 @@ in
             dependencies = [ { package = mason-lspconfig-nvim; } ];
 
             opts = {
-              handlers = mkLuaInline ''
-                {
-                  function(source, methods)
-                    require("mason-null-ls").default_setup(source, methods)
-                    end
-                }
-              '';
+              handlers =
+                mkLuaInline
+                  # lua
+                  ''
+                    {
+                      function(source, methods)
+                        require("mason-null-ls").default_setup(source, methods)
+                        end
+                    }
+                  '';
               ensure_installed = cfg.ensureNoneLsInstalled;
             };
           }
