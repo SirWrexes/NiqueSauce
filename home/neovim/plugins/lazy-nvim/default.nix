@@ -164,43 +164,35 @@ in
         # VimEnter is used to start Lazy in order for all potential lua configs to be evaluated beforehand.
         # This prevents problems like `<leader>...` mappings being incorrectly set to `\...` instead of
         # whatever the user set their mapleader to.
-        programs.neovim.extraLuaConfig = ''
+        programs.neovim.extraLuaConfig =
+          # lua
+          ''
 
-          	  do
-          	    local function init_lazy()
+            vim.opt.rtp:prepend("${cfg.package}")
 
-                        vim.opt.rtp:prepend("${cfg.package}")
+            vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
+              silent = true,
+              noremap = true,
+            })
 
-                        vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
-                          silent = true,
-                          noremap = true,
-                        })
+            require("lazy").setup(${
+              toLua {
+                # Spec definition and plugin package install is defined in laz-spec.nix
+                inherit (cfg) spec;
 
-                        require("lazy").setup(${
-                          toLua {
-                            # Spec definition and plugin package install is defined in laz-spec.nix
-                            inherit (cfg) spec;
+                # Disable automatic plugin updates.
+                # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
+                checker.enable = false;
 
-                            # Disable automatic plugin updates.
-                            # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
-                            checker.enable = false;
+                # Prevent Lazy.nvim from installing missing plugins.
+                # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
+                install.missing = true;
 
-                            # Prevent Lazy.nvim from installing missing plugins.
-                            # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
-                            install.missing = true;
+                lazy = cfg.lazyByDefault;
+                cond = cfg.defaultEnablePredicate;
+              }
+            })
 
-                            lazy = cfg.lazyByDefault;
-                            cond = cfg.defaultEnablePredicate;
-                          }
-                        })
-          	    end
-
-          	    vim.api.nvim_create_autocmd('VimEnter', {
-                        group = vim.api.nvim_create_augroup("InitLazy", {}),
-          	      callback = init_lazy,
-          	    })
-          	  end
-
-        '';
+          '';
       };
 }

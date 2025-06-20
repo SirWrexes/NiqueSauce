@@ -27,8 +27,6 @@ do
     end
   end
 
-  vim.g.mapleader = ' '
-
   batch {
     -- How to exit vim
     {

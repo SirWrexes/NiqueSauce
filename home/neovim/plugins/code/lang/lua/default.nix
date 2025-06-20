@@ -4,7 +4,7 @@
   home.file.defaultStyluaConfig = {
     source = ./stylua.toml;
     target = ".config/.stylua.toml";
-  }
+  };
 
   programs.neovim.lazy-nvim.lspconfig.servers.lua_ls = with pkgs; {
     package = lua-language-server;
