@@ -37,6 +37,9 @@ in
     sessionVariables = sessionVariables.unix;
 
     packages = with pkgs; [
+      # GNU Make
+      gnumake
+
       # Clipboard backend
       wl-clipboard
 
