@@ -15,17 +15,26 @@
 
     ft = "nix";
 
+    dependencies = with pkgs.vimPlugins; [
+      {
+        package = hmts-nvim;
+        dependencies = [ { package = nvim-treesitter; } ];
+      }
+    ];
+
     opts =
       let
         inherit (builtins) toFile toJSON;
         inherit (osConfig.networking) hostName;
 
-        wrapper = toFile "expr.nix" ''
-          import ${./findFlake.nix} {
-            self = ${toJSON root};
-            system = ${toJSON pkgs.stdenv.hostPlatform.system};
-          }
-        '';
+        wrapper =
+          toFile "expr.nix" # nix
+            ''
+              import ${./findFlake.nix} {
+                self = ${toJSON root};
+                system = ${toJSON pkgs.stdenv.hostPlatform.system};
+              }
+            '';
 
         withFlakes = expr: "with import ${wrapper}; ${expr}";
       in

@@ -5,7 +5,7 @@
     {
       package = nvim-autopairs;
 
-      event = "Syntax *";
+      event = "InsertEnter";
 
       opts.check_ts = true;
     }

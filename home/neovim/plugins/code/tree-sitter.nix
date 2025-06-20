@@ -1,80 +1,57 @@
 {
-  config,
-  lib,
   pkgs,
+  lib,
   ...
 }:
 
 let
-  inherit (lib) types;
-  inherit (lib.options) mkOption;
   inherit (lib.generators) mkLuaInline;
-
-  cfg = config.programs.neovim.lazy-nvim.treesitter;
 in
 {
-  options.programs.neovim.lazy-nvim.treesitter.parsers =
-    with types;
-    mkOption {
-      type = functionTo (listOf package);
-      default = _: [ ];
-      description = "TreeSitter parsers to install";
-    };
+  programs.neovim.extraPackages = with pkgs; [
+    clang
+    tree-sitter
+    stdenv.cc.cc.lib
+  ];
 
-  config = {
-    programs.neovim.extraPackages = with pkgs; [
-      clang
-      tree-sitter
-      stdenv.cc.cc.lib
-    ];
-
-    programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
+  programs.neovim.lazy-nvim.plugins =
+    with pkgs.vimPlugins;
+    let
+      treesitter = nvim-treesitter.withAllGrammars;
+      grammarsPath = pkgs.symlinkJoin {
+        name = "nvim-treesitter-grammars";
+        paths = treesitter.dependencies;
+      };
+    in
+    [
       {
-        package = nvim-treesitter;
+        package = treesitter;
 
-        dependencies =
-          let
-            inherit (pkgs.vimPlugins) nvim-treesitter nvim-treesitter-parsers;
-            inherit (nvim-treesitter) grammarToPlugin;
-
-            ts-parsers = map grammarToPlugin (cfg.parsers nvim-treesitter-parsers);
-            ts-parsers-deps = map (package: { inherit package; }) ts-parsers;
-          in
-          ts-parsers-deps
-          ++ [
-            { package = nvim-treesitter-refactor; }
-            { package = nvim-treesitter-textobjects; }
-            {
-              package = nvim-treesitter-context;
-              opts = {
-                enable = true;
-                max_lines = 0;
-                separator = "·";
-              };
-              config = mkLuaInline ''
-                function(_, opts)
-                  require("treesitter-context").setup(opts)
-                  vim.cmd [[hi! link TreeSitterContextSeparator SignColumn]]
-                end
-              '';
-            }
-          ];
-
-        main = "nvim-treesitter.configs";
-
-        event = [
-          "BufReadPre"
-          "BufNewFile"
+        dependencies = [
+          { package = nvim-treesitter-refactor; }
+          { package = nvim-treesitter-textobjects; }
+          {
+            package = nvim-treesitter-context;
+            opts = {
+              enable = true;
+              max_lines = 0;
+              separator = "·";
+            };
+            config =
+              mkLuaInline
+                # lua
+                ''
+                  function(_, opts)
+                    require("treesitter-context").setup(opts)
+                    vim.cmd [[hi! link TreeSitterContextSeparator SignColumn]]
+                  end
+                '';
+          }
         ];
 
-        init = mkLuaInline ''
-          function()
-            vim.opt.foldmethod = "expr"
-            vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()";
-            vim.opt.foldnestmax = 4
-            vim.opt.foldlevelstart = 3
-          end
-        '';
+        lazy = false;
+
+        main = "nvim-treesitter.configs";
 
         opts = {
           auto_install = false;
@@ -88,9 +65,20 @@ in
           };
         };
 
+        config =
+          mkLuaInline
+            # lua
+            ''
+              function(self, opts)
+                vim.opt.rtp:append("${grammarsPath}")
+                require(self.main).setup(opts)
+              end
+            '';
+
         keys =
           let
             inherit (lib.attrsets) updateManyAttrsByPath;
+
             peek = context: "<cmd>TSTextobjectPeekDefinitionCode ${context}<cr>";
             mkKeys = map (updateManyAttrsByPath [
               {
@@ -126,5 +114,4 @@ in
           ];
       }
     ];
-  };
 }
