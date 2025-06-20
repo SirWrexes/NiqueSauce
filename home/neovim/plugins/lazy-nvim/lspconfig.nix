@@ -183,31 +183,9 @@ in
         else
           throw ''Lua file `config` is not supported.'';
 
-      setInit =
-        server: init:
-        if init == null then
-          mkLuaInline ''
-            function()
-              vim.lsp.enable(${toLua server})
-            end
-          ''
-        else if isLuaInline init then
-          mkLuaInline ''
-            function(self)
-              vim.lsp.enable(${toLua server})
-              (${init.expr})(self)
-            end
-          ''
-        else
-          throw ''Lua file `init` is not supported.'';
-
       setDefaults =
         server: spec:
         updateManyAttrsByPath [
-          {
-            path = [ "init" ];
-            update = setInit server;
-          }
           {
             path = [ "config" ];
             update = setConfig server;

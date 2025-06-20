@@ -106,7 +106,7 @@ rec {
     unique (
       concatMap (
         {
-          package,
+          package ? null,
           dependencies ? null,
           enabled ? null,
           cond ? null,
