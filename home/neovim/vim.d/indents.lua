@@ -14,13 +14,13 @@ vim.o.wrap = false
 
 -- Show whitespaces
 --   ~      : trailing
---   |      : indentation
+--   |      : Make it obvious when there are filthy in your files
 --   arrows : indicate text is going out of buffer on the sides
 vim.o.list = true
 vim.opt.listchars = {
-	nbsp = "_",
-	tab = "| ",
-	trail = "~",
-	extends = "⇨",
-	precedes = "⇦",
+  nbsp = '_',
+  tab = '| ',
+  trail = '~',
+  extends = '⇨',
+  precedes = '⇦',
 }

@@ -3,8 +3,8 @@
 {
   imports = [
     ./nix
+    ./lua
 
-    ./lua.nix
     ./python.nix
   ];
 }
