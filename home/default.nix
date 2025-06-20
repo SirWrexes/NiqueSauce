@@ -45,6 +45,9 @@ in
 
       # Screenshot tool
       grimblast
+
+      # Print formatted markdown in terminal
+      glow
     ];
   };
 
