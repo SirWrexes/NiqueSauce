@@ -3,7 +3,7 @@
 {
   home.file.defaultStyluaConfig = {
     source = ./stylua.toml;
-    target = ".config/.stylua.toml";
+    target = ".config/stylua/stylua.toml";
   };
 
   programs.neovim.lazy-nvim.lspconfig.servers.lua_ls = with pkgs; {
@@ -32,18 +32,18 @@
         };
         library = [
           {
-            path = "$${3rd}/luv/library";
+            path = "\${3rd}/luv/library";
             words = [
               "vim%.uv"
               "vim%.loop"
             ];
           }
           {
-            path = "$${3rd}/luassert/library";
+            path = "\${3rd}/luassert/library";
             words = [ "assert" ];
           }
           {
-            path = "$${3rd}/busted/library";
+            path = "\${3rd}/busted/library";
             words = [ "describe" ];
           }
           {
