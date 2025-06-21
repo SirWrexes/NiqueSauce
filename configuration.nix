@@ -140,6 +140,13 @@
     packages = with pkgs; [ ];
   };
 
+  programs.steam = {
+    enable = true;
+    extest.enable = true;
+    protontricks.enable = true;
+    localNetworkGameTransfers.openFirewall = true;
+  };
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
