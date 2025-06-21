@@ -1,11 +1,15 @@
 {
-  config,
   pkgs,
   sessionVariables,
   ...
 }:
 
 {
+  imports = [
+    ./launcher
+    ./statusbar
+  ];
+
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = false; # see https://wiki.hyprland.org/Useful-Utilities/Systemd-start/#installation
