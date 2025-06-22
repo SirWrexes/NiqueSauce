@@ -7,5 +7,5 @@
 
 {
   programs.eww.enable = true;
-  programs.eww.configDir = ./config;
+  # programs.eww.configDir = ./config;
 }
