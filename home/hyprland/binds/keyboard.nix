@@ -1,5 +1,8 @@
+{ pkgs, lib, ... }:
+
 let
   inherit (builtins) concatLists genList;
+  inherit (lib.meta) getExe getExe';
 
   # Moving focus/windows across workspaces
   workspaces =
@@ -23,21 +26,27 @@ let
     );
 in
 workspaces
-++ [
+++ (with pkgs; [
   # Terminate the current session
-  "$SUPER_R, Q, exec, uwsm stop"
+  "SUPER_R, Q, exec, ${getExe uwsm} stop"
 
   # Lock session
-  "$SUPER_SHIFT, L, exec, hyprlock"
+  "$mod SHIFT, L, exec, ${getExe hyprlock}"
 
   # Open terminal
-  "$mod, RETURN, exec, kitty"
+  "$mod, RETURN, exec, ${getExe kitty}"
+
+  # Open app launcher
+  "$mod, SPACE, exec, ${getExe' tofi "tofi-drun"}"
+
+  # Open task manager
+  "CTRL ALT, DELETE, exec, ${getExe btop}"
 
   # Open set default browser
-  ", XF86HomePage, exec, firefox"
+  ", XF86HomePage, exec, ${getExe firefox}"
 
   # Open Discord
-  ", XF86Mail, exec, vesktop"
+  ", XF86Mail, exec, ${getExe vesktop}"
 
   # Move focus with hjkl
   "$mod, H, movefocus, l"
@@ -46,20 +55,20 @@ workspaces
   "$mod, L, movefocus, r"
 
   # Move active window with hjkl
-  "SUPER_SHIFT, H, movewindow, l"
-  "SUPER_SHIFT, J, movewindow, d"
-  "SUPER_SHIFT, K, movewindow, u"
-  "SUPER_SHIFT, L, movewindow, r"
+  "$mod SHIFT, H, movewindow, l"
+  "$mod SHIFT, J, movewindow, d"
+  "$mod SHIFT, K, movewindow, u"
+  "$mod SHIFT, L, movewindow, r"
 
   # Close the currently focused window
   # Note that despite the name, this uses graceful quitting, and doesn't actually kill the process.
   "$mod, ESCAPE, killactive"
 
   # Control volume with fn keys
-  "$mod, XF86AudioMute,        exec, pavucontrol"
-  ",     XF86AudioMute,        exec, wpctl set-mute t oggle"
-  ",     XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
-  ",     XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-  "CTRL, XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+"
-  "CTRL, XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-"
-]
+  "$mod, XF86AudioMute,        exec, ${getExe pavucontrol}"
+  ",     XF86AudioMute,        exec, ${getExe' wireplumber "wpctl"} set-mute toggle"
+  ",     XF86AudioRaiseVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+  ",     XF86AudioLowerVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+  "CTRL, XF86AudioRaiseVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 1%+"
+  "CTRL, XF86AudioLowerVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 1%-"
+])
