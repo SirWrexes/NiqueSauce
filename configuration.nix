@@ -26,8 +26,7 @@
     theme = pkgs.catppuccin-grub;
   };
 
-  # For now, NVidia fails building on 6.15, so I'm pinning 6.14 until it's fixed
-  boot.kernelPackages = pkgs.linuxPackages_6_14;
+  boot.kernelPackages = pkgs.linuxPackagesFor pkgs.linux_xanmod_stable;
 
   # See https://nixos.wiki/wiki/Fish
   # Section: Setting fish as your shell
