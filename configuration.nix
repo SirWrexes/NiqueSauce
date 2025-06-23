@@ -113,8 +113,15 @@
     ];
   };
 
+  ## Printing
   # Enable CUPS to print documents.
   services.printing.enable = true;
+  # Enable auto-discovery of network printers
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -136,7 +143,10 @@
       "networkmanager"
       "wheel"
     ];
-    packages = with pkgs; [ ];
+    packages = with pkgs; [
+      # CLI tool for all colour things
+      pastel
+    ];
   };
 
   programs.steam = {
