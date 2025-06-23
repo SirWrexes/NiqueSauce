@@ -22,6 +22,8 @@ in
     ./hyprland
     ./discord.nix
     ./browser
+
+    ./media
   ];
 
   programs.home-manager.enable = true;
