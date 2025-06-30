@@ -137,61 +137,43 @@ in
         ''
       )
       {
-        # TODO:
-        # home =
-        #   if cfg.transformGeneratedLua == "pretty" then
-        #     {
-        #       packages = with pkgs; [ stylua ];
-        #       activation = {
-        #         prettifyLazyvimGenerated = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        #           # This doesn't seem to work.
-        #           # Likely I need to runt on the created derivations and not the generated symlinks.
-        #           run stylua ${fullModulesDirPath}
-        #         '';
-        #       };
-        #     }
-        #   else if cfg.transformGeneratedLua == "mini" then
-        #     throw "Minifying generated sources is not supported (yet?)."
-        #   else
-        #     { };
+        # TODO: Find a way to format sources, probably using `home.activation`
 
         programs.neovim.extraLuaPackages = luapkgs: with luapkgs; [ rocks-nvim ];
         programs.neovim.extraPackages = [ cfg.package ];
 
         # Keep the empty lines above and below the lua code to prevent the statements
         # sticking to other lines during concatenation.
-
-        # VimEnter is used to start Lazy in order for all potential lua configs to be evaluated beforehand.
-        # This prevents problems like `<leader>...` mappings being incorrectly set to `\...` instead of
-        # whatever the user set their mapleader to.
         programs.neovim.extraLuaConfig =
           # lua
           ''
 
-            vim.opt.rtp:prepend("${cfg.package}")
+            if not vim.g.lazy_did_setup then
+              vim.opt.rtp:prepend("${cfg.package}")
 
-            vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
-              silent = true,
-              noremap = true,
-            })
+              vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
+                silent = true,
+                noremap = true,
+              })
 
-            require("lazy").setup(${
-              toLua {
-                # Spec definition and plugin package install is defined in laz-spec.nix
-                inherit (cfg) spec;
+              require("lazy").setup(${
+                toLua {
+                  # Spec definition and plugin package install is defined in laz-spec.nix
+                  inherit (cfg) spec;
 
-                # Disable automatic plugin updates.
-                # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
-                checker.enable = false;
+                  # Disable automatic plugin updates.
+                  # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
+                  checker.enable = false;
 
-                # Prevent Lazy.nvim from installing missing plugins.
-                # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
-                install.missing = true;
+                  # Prevent Lazy.nvim from installing missing plugins.
+                  # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
+                  install.missing = true;
 
-                lazy = cfg.lazyByDefault;
-                cond = cfg.defaultEnablePredicate;
-              }
-            })
+                  lazy = cfg.lazyByDefault;
+                  cond = cfg.defaultEnablePredicate;
+                }
+              })
+            end
 
           '';
       };
