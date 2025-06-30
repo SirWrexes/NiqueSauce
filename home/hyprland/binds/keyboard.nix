@@ -48,6 +48,11 @@ workspaces
   # Open Discord
   ", XF86Mail, exec, ${getExe vesktop}"
 
+  # Toggle fullscreen
+  "$mod, F, fullscreen, 0"
+  # Toggle pseudo-fullscreen
+  "$mod SHIFT, F, fullscreen, 1"
+
   # Move focus with hjkl
   "$mod, H, movefocus, l"
   "$mod, J, movefocus, d"
