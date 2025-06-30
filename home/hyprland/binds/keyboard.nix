@@ -37,7 +37,7 @@ workspaces
   "$mod, RETURN, exec, ${getExe kitty}"
 
   # Open app launcher
-  "$mod, SPACE, exec, ${getExe' tofi "tofi-drun"}"
+  "$mod, SPACE, exec, ${getExe' tofi "tofi-drun"} --drun-launch=true"
 
   # Open task manager
   "CTRL ALT, DELETE, exec, ${getExe btop}"
