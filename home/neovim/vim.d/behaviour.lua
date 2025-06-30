@@ -56,7 +56,7 @@ do
 
   function WhiteSpaceCleanup(opts)
     if
-      not opts.bang and vim.tbl_contains(ws_cleanup_ignore, vim.opt.filetype)
+      not opts.bang and vim.tbl_contains(ws_cleanup_ignore, vim.bo.filetype)
     then
       return
     end
