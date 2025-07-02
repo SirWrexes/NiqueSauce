@@ -20,7 +20,7 @@ in
       inherit (lazylib.modules) toModule;
       inherit (lazylib.options) mkOption;
       inherit (lazylib.types) isLuaInline;
-      inherit (lazylib.submodules) LazySpec;
+      inherit (lazylib.submodules) LspConfig;
 
       applyToDefaults =
         name: source:
@@ -43,9 +43,7 @@ in
           default = null;
           apply = applyToDefaults "capabilities";
           description = ''
-            Honestly, I don't really know what those are, but I know they're often necessary to make
-            completion plugins work properly.
-            Check the documentation for your completion plugin, there's probably a section about those.
+            See `:h vim.lsp.ClientConfig`, field `{capabilities}`.
           '';
         };
 
@@ -65,54 +63,46 @@ in
       servers =
         with types;
         mkOption {
-          type = nullOr (attrsOf LazySpec);
+          type = nullOr (attrsOf LspConfig);
           default = { };
           description = ''
-            Lazy-like configurations for your LSPs.
-            It will be turned into a lazy spec with a few key differences:
-              - lspconfig will be added to your spec's dependencies.
-              - If you define a `config` function, it will be wrapped in a factory function exposing a `get_defaults` function.
-                This `get_defaults` will return a table containing two entries that you can use in your setup if you wish:
-                - on_attach: The default hook, that you can define with `lspconfig.defaultOnAttach`.
-                - capabilities: The default capabilities set that you can define with `lspconfig.defaultCapabilities`.
-              - If you haven't defined one, it will automatically be set to `function(_, opts) require("lspconfig").<SERVER>.setup(opts) end`.
-                `opts` will be extended with default `capabilities` and `on_attach`.
-                If you do not want that, you can set them to `false` in your spec's `opts`.
-              - The language server will automatically be enabled with `vim.lsp.enable()` during the init phase.
+            See `:h vim.lsp.Config` and `:h vim.lsp.ClientConfig`.
+            Not everything is implemented. I'll add stuff if and when necessary—feel free to file an issue and/or PR.
           '';
-          example = literalExpression ''
-            programs.neovim.lazy-nvim.lspconfig.servers.lua_ls = {
-              package = pkgs.lua-language-server;
+          example =
+            literalExpression
+              # nix
+              ''
+                let
+                  ls = "lua-language-server";
+                in
+                {
+                  home.packages = [ pkgs.${ls} ];
 
-              dependencies = [ { package = pkgs.vimPlugins.lazydev-nvim; } ];
-
-              ft = "lua";
-
-              opts.settings.Lua = {
-                hint.enable = true;
-                completion.callSnippet = "Replace";
-              };
-            };
-          '';
+                  programs.neovim.lazy-nvim.lspconfig.servers.luals = {
+                    cmd = ls;
+                    filetypes = [ "lua" ];
+                    root_markers = [ [ ".luarc.json" ".luarc.jsonc" ] ".git" ];
+                    settings.Lua = {
+                      hint.enable = true;
+                      completion.callSnippet = "Replace";
+                    };
+                  };
+                }
+              '';
         };
     };
 
   config =
     let
-      inherit (lib.attrsets)
-        attrValues
-        mapAttrs
-        mergeAttrsList
-        updateManyAttrsByPath
-        ;
+      inherit (lib.attrsets) attrValues mapAttrs mergeAttrsList;
       inherit (lib.generators) mkLuaInline;
-      inherit (lib.lists) filter length;
+      inherit (lib.lists) concatMap filter length;
       inherit (lib.strings) concatStringsSep;
-      inherit (lib.trivial) pipe;
+      inherit (lib.trivial) flip pipe;
 
       inherit (lazylib) toLua;
       inherit (lazylib.attrsets) stripNulls;
-      inherit (lazylib.types) isLuaInline;
 
       modules =
         with cfg;
@@ -150,57 +140,54 @@ in
               ]}
             end
           '';
+          root_markers = [ ".git" ];
         };
 
-      setConfig =
-        server: config:
-        if config == null then
-          mkLuaInline ''
-            function(_, opts)
-              if opts.on_attach == nil then
-                opts.on_attach = ${defaults.on_attach.expr}
-              elseif opts.on_attach == false then
-                opts.on_attach = nil
-              end
+      cleanupConfig = flip pipe [
+        (flip removeAttrs [ "enable" ])
+        stripNulls
+      ];
 
-              if opts.capabilities == nil then
-                opts.capabilities = ${defaults.capabilities.expr}
-              elseif opts.capabilities == false then
-                opts.capabilities = nil
-              end
+      toLuaConfig =
+        name:
+        { enable, ... }@config:
+        ''
+          vim.lsp.config(${toLua name}, ${toLua (cleanupConfig config)})
+          ${if enable then "vim.lsp.enable(${toLua name})" else "-- Auto attach disabled"}
+        '';
 
-              require("lspconfig").${server}.setup(opts)
-            end
-          ''
-        else if isLuaInline config then
-          mkLuaInline ''
-            (function(get_defaults)
-              return ${config.expr}
-            end)(function()
-              return ${toLua defaults}
-            end)
-          ''
-        else
-          throw ''Lua file `config` is not supported.'';
-
-      setDefaults =
-        server: spec:
-        updateManyAttrsByPath [
-          {
-            path = [ "config" ];
-            update = setConfig server;
-          }
-          {
-            path = [ "dependencies" ];
-            update =
-              deps: (if deps == null then [ ] else deps) ++ [ { package = pkgs.vimPlugins.nvim-lspconfig; } ];
-          }
-        ] spec;
-
-      servers = mapAttrs setDefaults cfg.servers;
+      toLuaConfig' = flip pipe [
+        (mapAttrs toLuaConfig)
+        attrValues
+        (concatStringsSep "\n")
+      ];
     in
     lib.mkIf (config.programs.neovim.lazy-nvim.enable && (length (attrNames cfg.servers) > 0)) {
       home.file = mergeAttrsList modules;
-      programs.neovim.lazy-nvim.plugins = attrValues servers;
+      programs.neovim.lazy-nvim.plugins = [
+        {
+          package = pkgs.vimPlugins.nvim-lspconfig;
+
+          priority = 1000;
+
+          ft = concatMap (
+            {
+              filetypes ? [ ],
+              ...
+            }:
+            filetypes
+          ) (attrValues cfg.servers);
+
+          config =
+            mkLuaInline
+              # lua
+              ''
+                function(_, opts)
+                  vim.lsp.config('*', ${toLua defaults})
+                  ${toLuaConfig' cfg.servers}
+                end
+              '';
+        }
+      ];
     };
 }

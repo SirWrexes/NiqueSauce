@@ -1,6 +1,6 @@
 { lib }:
 
-# Credit goes to Folke for most of the documentation.
+# Credit goes to Folke for most of the LazySpec documentation.
 # Check it out [here](https://lazy.folke.io/spec).
 # Check out his awseome projects on [Github](http://github.com/folke)!
 let
@@ -228,7 +228,7 @@ rec {
           description = ''
             Lazy-load on event. Events can be specified with or without paramters (e.g. `BufEnter` or `BufEnter *.lua`).
 
-            Expected luaSnippet content type: 
+            Expected luaSnippet content type:
             ```
             fun(self: LazyPlugin, event: string[]): string[]
             ```
@@ -245,7 +245,7 @@ rec {
           description = ''
             Lazy-load on command.
 
-            Expected luaSnippet content type: 
+            Expected luaSnippet content type:
             ```
             fun(self: LazyPlugin, cmd: string[]): string[]
             ```
@@ -277,6 +277,44 @@ rec {
             Using this option instead of just having your bindings somewhere in your NeoVim config will enable lazy-loading the plugin on using them.
           '';
           apply = readLuaSnippet;
+        };
+      };
+    };
+
+  LspConfig =
+    with types;
+    submodule {
+      options = {
+        enable = mkOption {
+          type = nullOr bool;
+          default = true;
+          description = ''
+            Automatically attach LSP to buffers with its corresponding filetypes (defined in `.filetypes`).
+          '';
+        };
+        cmd = mkOption {
+          type = nullOr (listOf str);
+          default = null;
+        };
+        filetypes = mkOption {
+          type = nullOr (listOf str);
+          default = null;
+        };
+        root_markers = mkOption {
+          type = nullOr (listOf (either str (listOf str)));
+          default = null;
+        };
+        on_attach = mkOption {
+          type = nullOr (either luaSnippet (listOf luaSnippet));
+          default = null;
+        };
+        capabilities = mkOption {
+          type = nullOr luaSnippet;
+          default = null;
+        };
+        settings = mkOption {
+          type = nullOr attrs;
+          default = null;
         };
       };
     };

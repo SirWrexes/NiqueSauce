@@ -7,22 +7,23 @@
 
 {
   home.packages = with pkgs; [
-    stylua
+    nixd
+  ];
+
+  programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
+    {
+      package = hmts-nvim;
+      dependencies = [ { package = nvim-treesitter; } ];
+      ft = "nix";
+    }
   ];
 
   programs.neovim.lazy-nvim.lspconfig.servers.nixd = {
-    package = pkgs.nixd;
+    filetypes = [ "nix" ];
 
-    ft = "nix";
+    cmd = [ "nixd" ];
 
-    dependencies = with pkgs.vimPlugins; [
-      {
-        package = hmts-nvim;
-        dependencies = [ { package = nvim-treesitter; } ];
-      }
-    ];
-
-    opts =
+    settings.nixd =
       let
         inherit (builtins) toFile toJSON;
         inherit (osConfig.networking) hostName;
@@ -36,31 +37,17 @@
               }
             '';
 
-        withFlakes =
-          expr:
-          # nix
-          "with import ${wrapper}; ${expr}";
+        withFlakes = expr: "with import ${wrapper}; ${expr}";
       in
       {
-        cmd = [ "nixd" ];
-        settings.nixd = {
-          nixpkgs.expr =
-            withFlakes
-              # nix
-              "import (if local ? lib.version then local else local.inputs.nixpkgs or global.inputs.nixpkgs) {}";
-          options = rec {
-            flake-parts.expr =
-              withFlakes
-                # nix
-                "local.debug.options or global.debug.options";
-            nixos.expr =
-              withFlakes
-                # nix
-                "global.nixosConfigurations.${hostName}.options";
-            home-manager.expr =
-              # nix
-              "${nixos.expr}.home-manager.users.type.getSubOptions []";
-          };
+        nixpkgs.expr =
+          withFlakes
+            # nix
+            "import (if local ? lib.version then local else local.inputs.nixpkgs or global.inputs.nixpkgs) {}";
+        options = rec {
+          flake-parts.expr = withFlakes "local.debug.options or global.debug.options";
+          nixos.expr = withFlakes "global.nixosConfigurations.${hostName}.options";
+          home-manager.expr = "${nixos.expr}.home-manager.users.type.getSubOptions []";
         };
       };
   };

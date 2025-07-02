@@ -1,9 +1,10 @@
 { pkgs, ... }:
 
 {
-  programs.neovim.lazy-nvim.lspconfig.servers.pyright = with pkgs; {
-    package = pyright;
+  home.packages = with pkgs; [ pyright ];
 
-    ft = "python";
+  programs.neovim.lazy-nvim.lspconfig.servers.pyright = {
+    cmd = [ "pyright" ];
+    filetypes = [ "python" ];
   };
 }

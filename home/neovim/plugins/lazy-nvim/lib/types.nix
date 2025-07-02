@@ -1,7 +1,7 @@
 { lib }:
 
 let
-  inherit (builtins) readFile typeOf;
+  inherit (builtins) length readFile typeOf;
 
   inherit (lib.generators) mkLuaInline;
   inherit (lib.strings) hasSuffix;
@@ -28,4 +28,6 @@ lib.types
     name = "boolTrue";
     description = "A boolean value that can only be true";
   };
+
+  tuple = size: type: addCheck (listOf type) (x: length x == size);
 })

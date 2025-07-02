@@ -6,12 +6,15 @@
     target = ".config/stylua/stylua.toml";
   };
 
-  programs.neovim.lazy-nvim.lspconfig.servers.lua_ls = with pkgs; {
-    package = lua-language-server;
+  home.packages = with pkgs; [
+    lua-language-server
+    stylua
+  ];
 
-    ft = "lua";
-
-    opts.settings.Lua = {
+  programs.neovim.lazy-nvim.lspconfig.servers.luals = {
+    cmd = [ "lua-language-server" ];
+    filetypes = [ "lua" ];
+    settings.Lua = {
       hint.enable = true;
       completion.callSnippet = "Replace";
     };
@@ -20,8 +23,6 @@
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
       package = lazydev-nvim;
-
-      dependencies = [ { package = pkgs.lua-language-server; } ];
 
       ft = "lua";
 
