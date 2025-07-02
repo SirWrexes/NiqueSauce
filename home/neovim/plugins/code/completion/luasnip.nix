@@ -51,21 +51,23 @@ with pkgs.vimPlugins;
       loadFrom' = source: ''require("luasnip.loaders.from_${source}").lazy_load()'';
       loadFrom = sources: concatStringsSep "\n" (map loadFrom' sources);
     in
-    mkLuaInline ''
-      function(_, opts)
-        local utils = require ${toLua sniputils}
-        local luasnip = require "luasnip"
+    mkLuaInline
+      # lua
+      ''
+        function(_, opts)
+          local utils = require ${toLua sniputils}
+          local luasnip = require "luasnip"
 
-        opts.load_ft = utils.load_ft_func
-        opts.ft_func = utils.ft_func
+          opts.load_ft = utils.load_ft_func
+          opts.ft_func = utils.ft_func
 
-        luasnip.setup(opts)
+          luasnip.setup(opts)
 
-        ${loadFrom [
-          "vscode"
-          "snipmate"
-          "lua"
-        ]}
-      end
-    '';
+          ${loadFrom [
+            "vscode"
+            "snipmate"
+            "lua"
+          ]}
+        end
+      '';
 }

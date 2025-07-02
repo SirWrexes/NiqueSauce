@@ -23,8 +23,6 @@ in
 
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
-      name = "Coq";
-
       package = coq_nvim;
 
       dependencies = [
@@ -35,22 +33,33 @@ in
 
       event = "InsertEnter";
 
-      init = mkLuaInline ''
-        function()
-          vim.g.coq_settings = ${
-            toLua {
-              auto_start = "shut-up";
-              keymap = {
-                jump_to_mark = "<C-l>";
-              };
-            }
-          }
-        end
-      '';
+      init =
+        mkLuaInline
+          # lua
+          ''
+            function()
+              vim.g.coq_settings = ${
+                toLua {
+                  auto_start = "shut-up";
+
+                  keymap.jump_to_mark = "<C-l>";
+
+                  # Ignore "missing" snippets
+                  # Without this setting, unless you've defined custom Coq
+                  # snippets, you'll get a message saying
+                  # ⚠️  No compatible snippets found, try updating `coq.artifacts`
+                  clients.snippets.warn = [ "outdated" ];
+                }
+              }
+            end
+          '';
     }
   ];
 
-  programs.neovim.lazy-nvim.lspconfig.defaultCapabilities = mkLuaInline ''
-    require("coq").lsp_ensure_capabilities().capabilities
-  '';
+  programs.neovim.lazy-nvim.lspconfig.defaultCapabilities =
+    mkLuaInline
+      # lua
+      ''
+        require("coq").lsp_ensure_capabilities().capabilities
+      '';
 }
