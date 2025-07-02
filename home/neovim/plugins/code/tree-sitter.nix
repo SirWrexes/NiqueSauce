@@ -34,7 +34,7 @@ in
             package = nvim-treesitter-context;
             opts = {
               enable = true;
-              max_lines = 0;
+              max_lines = 4;
               separator = "·";
             };
             config =
@@ -43,7 +43,10 @@ in
                 ''
                   function(_, opts)
                     require("treesitter-context").setup(opts)
-                    vim.cmd [[hi! link TreeSitterContextSeparator SignColumn]]
+                    vim.cmd [[
+                      hi! link TreeSitterContextSeparator SignColumn
+                      hi! link TreeSittercontext          VisualNOS
+                    ]]
                   end
                 '';
           }

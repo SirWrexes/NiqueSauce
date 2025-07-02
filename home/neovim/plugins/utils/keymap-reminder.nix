@@ -10,14 +10,19 @@ in
 
       event = "VeryLazy";
 
-      init = mkLuaInline ''
-        function()
-          vim.o.timeout = true
-          vim.o.timeoutlen = 300
-        end
-      '';
+      init =
+        mkLuaInline
+          # lua
+          ''
+            function()
+              vim.o.timeout = true
+              vim.o.timeoutlen = 300
+            end
+          '';
 
-      config = true;
+      opts = {
+        win.border = "rounded";
+      };
     }
   ];
 }

@@ -171,6 +171,8 @@ in
 
                   lazy = cfg.lazyByDefault;
                   cond = cfg.defaultEnablePredicate;
+
+                  ui.border = "rounded";
                 }
               })
             end

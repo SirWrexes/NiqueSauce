@@ -17,16 +17,19 @@ in
 
       dependencies = [ { package = nvim-web-devicons; } ];
 
-      init = mkLuaInline ''
-        function()
-          -- Disable netrw. It's buggy and tends to clash with nvim-tree
-          vim.g.loaded_netrw = 1
-          vim.g.loaded_netrwPlugin = 1
+      init =
+        mkLuaInline
+          # lua
+          ''
+            function()
+              -- Disable netrw. It's buggy and tends to clash with nvim-tree
+              vim.g.loaded_netrw = 1
+              vim.g.loaded_netrwPlugin = 1
 
-          -- Enable full colour palette if it's not already
-          vim.opt.termguicolors = true
-        end
-      '';
+              -- Enable full colour palette if it's not already
+              vim.opt.termguicolors = true
+            end
+          '';
 
       opts = {
         sort.sorter = "filetype";
@@ -49,18 +52,20 @@ in
         on_attach = import ./on_attach.nix { inherit lib name; };
       };
 
-      config = mkLuaInline ''
-        function(_, opts)
-          local evt = require('nvim-tree.api').events
+      config =
+        mkLuaInline
+          # lua
+          ''
+            function(_, opts)
+              local evt = require('nvim-tree.api').events
+              evt.subscribe(
+                evt.Event.FileCreated,
+                function(file) vim.cmd.edit(file.fname) end
+              )
 
-          evt.subscribe(
-            evt.Event.FileCreated,
-            function(file) vim.cmd.edit(file.fname) end
-          )
-
-          require('nvim-tree').setup(opts)
-        end
-      '';
+              require('nvim-tree').setup(opts)
+            end
+          '';
 
       keys =
         let
