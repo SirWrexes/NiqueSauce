@@ -7,6 +7,7 @@
 
 let
   inherit (lib.generators) mkLuaInline;
+  inherit (lib.trivial) flip;
 in
 {
   programs.neovim.extraPackages = with pkgs; [
@@ -25,6 +26,13 @@ in
         { package = scope-nvim; }
       ];
 
+      opts = {
+        pickers.colorscheme = {
+          theme = "dropdown";
+          enable_preview = true;
+        };
+      };
+
       config =
         mkLuaInline
           # lua
@@ -40,15 +48,6 @@ in
       keys =
         let
           inherit (config.programs.neovim.lazy-nvim) toLua;
-          inherit (lib.attrsets) updateManyAttrsByPath;
-
-          tele =
-            cmd:
-            mkLuaInline
-              # lua
-              ''
-                function() require("telescope.builtin").${cmd}() end
-              '';
 
           tele' =
             cmd: opts:
@@ -58,23 +57,33 @@ in
                 function() require("telescope.builtin").${cmd}(${toLua opts}) end
               '';
 
+          tele = flip tele' { };
+
           ext =
             cmd:
             mkLuaInline
               # lua
-              ''require("telescope").extensions.${cmd}'';
+              ''
+                require("telescope").extensions.${cmd}
+              '';
 
-          mkKeys = map (updateManyAttrsByPath [
-            {
-              path = [ "mode" ];
-              update = _: [
+          mkKeys = map (
+            mapping:
+            mapping
+            // {
+              mode = [
                 "n"
                 "x"
               ];
             }
-          ]);
+          );
         in
         mkKeys [
+          {
+            lhs = "<leader>fcs";
+            rhs = tele "colorscheme";
+            desc = "Colorschemes";
+          }
           {
             lhs = "<leader>ff";
             rhs = tele "find_files";
