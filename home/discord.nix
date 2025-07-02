@@ -16,7 +16,7 @@ with config.colorScheme.palette;
     hardwareAcceleration = true;
   };
 
-  programs.vesktop.vencord.settings = 
+  programs.vesktop.vencord.settings =
     let
       plugins = {
         MessageLogger.enabled = true;
@@ -24,7 +24,7 @@ with config.colorScheme.palette;
     in
     {
       autoUpdate = false;
-      autoUpdateNitification = false;
+      autoUpdateNotification = false;
       notifyAboutUpdates = false;
       disableMinSize = true;
       inherit plugins;
