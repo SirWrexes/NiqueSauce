@@ -17,6 +17,8 @@
     {
       package = cinnamon-nvim;
 
+      enabled = false;
+
       opts = {
         keymaps = {
           basic = true;
