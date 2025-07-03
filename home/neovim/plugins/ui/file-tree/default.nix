@@ -37,7 +37,7 @@ in
         sync_root_with_cwd = true;
         respect_buf_cwd = true;
 
-        view.width = 30;
+        view.width = 40;
 
         renderer.group_empty = true;
 
