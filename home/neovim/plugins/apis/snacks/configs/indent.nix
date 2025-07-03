@@ -1,11 +1,14 @@
 { ... }:
 
 {
-  # DonOnly show indentation guides in active window
-  only_current = true;
+  config = {
+    # Only show guides for current scope
+    indent.enabled = false;
+    scope.enabled = true;
 
-  # Values are in ms
-  animate.duration = {
-    step = 25; # Default is 20, I want it slightly slower for cooler effect
+    # Values are in ms
+    animate.duration = {
+      step = 25;
+    };
   };
 }
