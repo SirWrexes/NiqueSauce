@@ -8,7 +8,7 @@ in
 
   keys = [
     {
-      lhs = "<M-?>";
+      lhs = "<M-S-/>";
       rhs = mkLuaInline ''function() Snacks.notifier.show_history() end'';
       desc = "Show history";
     }
