@@ -17,17 +17,31 @@ do
   --    %= — Padding (next items are right aligned)
   local winbar = [[%n%=%f%m%=L%l/%L:%c (%p%%)]]
 
-  local winbar_exclude_ft = {
-    'NvimTree',
+  local winbar_ft = {
+    -- Remove the bar completely for these fts
+    exclude = {
+      'NvimTree',
+    },
+
+    -- Don't change the bar for these fts
+    ignore = {
+      'toggleterm',
+    },
   }
+
+  local function assign_winbar()
+    local ft = vim.bo.ft
+
+    if vim.tbl_contains(winbar_ft.ignore, ft) then return end
+    if vim.tbl_contains(winbar_ft.exclude, ft) then
+      vim.wo.winbar = nil
+    else
+      vim.wo.winbar = winbar
+    end
+  end
 
   vim.api.nvim_create_autocmd('BufWinEnter', {
     group = vim.api.nvim_create_augroup('WinbarExcludeFt', {}),
-    callback = function()
-      vim.opt_local.winbar = vim.tbl_contains(
-        winbar_exclude_ft,
-        vim.bo.filetype
-      ) and nil or winbar
-    end,
+    callback = assign_winbar,
   })
 end
