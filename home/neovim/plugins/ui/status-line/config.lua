@@ -15,7 +15,7 @@ do
   --    %f — Relative filename or as provided in the edit command
   --    %m — Modified or unmodifiable flag
   --    %= — Padding (next items are right aligned)
-  local winbar = [[%n%=%f%m%=L%l/%L:%c (%p%%)]]
+  local winbar = [[ %n%=%f%m%=L%l/%L:%c (%p%%) ]]
 
   local winbar_ft = {
     -- Remove the bar completely for these fts
@@ -35,7 +35,7 @@ do
     if vim.tbl_contains(winbar_ft.ignore, ft) then return end
     if vim.tbl_contains(winbar_ft.exclude, ft) then
       vim.wo.winbar = nil
-    else
+    elseif vim.bo.buftype ~= 'nofile' then
       vim.wo.winbar = winbar
     end
   end
