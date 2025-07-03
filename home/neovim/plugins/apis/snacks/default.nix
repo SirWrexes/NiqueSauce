@@ -44,7 +44,7 @@ in
         dashboard = import ./configs/dashboard.nix args;
         debug.enabled = true;
         gitbrowse.enable = true;
-        indent.enabled = true;
+        indent.enabled = import ./configs/indent.nix args;
         input.enabled = true;
         notifier.enabled = true;
         notify.enabled = true;
