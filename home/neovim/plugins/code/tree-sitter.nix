@@ -37,6 +37,7 @@ in
               max_lines = 4;
               separator = "·";
             };
+
             config =
               mkLuaInline
                 # lua
@@ -80,18 +81,18 @@ in
 
         keys =
           let
-            inherit (lib.attrsets) updateManyAttrsByPath;
-
             peek = context: "<cmd>TSTextobjectPeekDefinitionCode ${context}<cr>";
-            mkKeys = map (updateManyAttrsByPath [
-              {
-                path = [ "mode" ];
-                update = _: [
+
+            mkKeys = map (
+              mapping:
+              mapping
+              // {
+                mode = [
                   "n"
                   "i"
                 ];
               }
-            ]);
+            );
           in
           mkKeys [
             {
