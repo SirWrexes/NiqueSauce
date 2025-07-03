@@ -2,6 +2,8 @@
 
 {
   imports = [
+    ./snacks
+
     ./auto-pairs.nix
     ./discord-rtp.nix
     ./images-in-markdown.nix
@@ -10,6 +12,7 @@
     ./lazygit.nix
     ./structural-search-and-replace.nix
     ./surround.nix
+    ./telescope.nix
     ./undotree.nix
     ./wakatime.nix
   ];
