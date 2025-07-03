@@ -4,29 +4,31 @@ let
   inherit (builtins) concatStringsSep;
   inherit (lib.generators) mkLuaInline;
   inherit (lib.strings) readFile;
-  inherit (lib.trivial) pipe;
+  inherit (lib.trivial) flip pipe;
 
-  inits =
-    pipe
-      [
-        (name: ./init + "${name}.lua")
-        readFile
-        (code: ''
-          do
-          ${code}
-          end
-        '')
-      ]
-      [
-        "debug-globals"
-        "lsp-progress"
-        "nvim-tree-integration"
-      ];
+  readInit = flip pipe [
+    (name: ./init + "/${name}.lua")
+    readFile
+    (code: ''
+      do
+      ${code}
+      end
+    '')
+  ];
+
+  inits = map readInit [
+    "debug-globals"
+    "lsp-progress"
+    "nvim-tree-integration"
+  ];
 in
 {
   home.packages = with pkgs; [
-    lazygit
+    dwt1-shell-color-scripts
     gh
+    gh-notify
+    git-graph
+    lazygit
   ];
 
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
@@ -39,8 +41,9 @@ in
 
       opts = {
         animate.enabled = true;
-        dashboard.example = "github";
+        dashboard = import ./configs/dashboard.nix args;
         debug.enabled = true;
+        gitbrowse.enable = true;
         indent.enabled = true;
         input.enabled = true;
         notifier.enabled = true;
@@ -49,6 +52,7 @@ in
         rename.enabled = true;
         scroll.enabled = true;
         win.border = "rounded";
+        styles.border = "rounded";
       };
 
       init = mkLuaInline ''
