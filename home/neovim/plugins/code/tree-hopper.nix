@@ -22,7 +22,7 @@ in
 
       keys = [
         {
-          lhs = "@";
+          lhs = "<C-#>";
           rhs = mkLuaInline ''
             function() require("tsht").nodes() end
           '';
