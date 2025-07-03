@@ -48,150 +48,152 @@ let
   };
 in
 {
-  preset = {
-    header = ''
-             ⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-        ⠀⠀⢠⣖⣿⢐⡆⠀⠀⠀⠀⠀⠀⠀⡀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⢠⢻⡾⡿⡳⡹⣀⢀⠀⢀⠤⢆⣶⡫⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⣯⣻⡫⡯⣳⢝⡮⣫⢯⡳⣻⢸⣿⣭⢽⡇⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⢸⢯⡺⣭⢙⢮⡳⣝⢮⡳⠝⢮⢏⡯⣚⣽⡇⠀⠀⠀⠀⠀⠀⠀⠀
-      ⣿⣿⣿⣿⣇⣀⣼⡕⠕⢕⣇⣏⠉⠀⡯⣺⢝⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠈⣻⣿⣿⣿⣿⡻⠷⡲⢾⢿⣿⣷⣶⣿⣿⣷⣷⣶⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿⣿⡿⡋⠁⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠈⠙⠻⠿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠟⠋⠁⠀⣠⣴⣾⣟⣥⣤⣤⣄
-      ⠀⠀⠀⠀⠀⠀⡐⣯⣿⣽⡯⣗⢖⣆⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⡟⠉
-      ⠀⠀⠀⠀⠀⣔⢽⡩⣿⡏⡾⣕⢯⢮⣣⠀⠀⢐⢧⢿⣿⣿⣿⣿⣻⠀⠀
-      ⠀⢀⠀⡀⠀⣗⢽⡪⠓⡸⣝⢮⠇⣕⣗⠀⠀⠱⡹⡽⣻⡻⡮⣟⠯⠀⠀
-      ⠨⢒⠂⡂⠨⡺⠕⠯⢐⠯⡺⣝⢑⢕⠠⢰⠨⢄⠨⡹⡚⡮⡳⡱⠁⠀⠀
-      ⠀⡑⢵⠀⡂⠠⠁⠂⠀⢂⠂⢂⣖⢐⠐⡠⡲⠠⢐⢅⠇⡎⠢⠁⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠈⠀⠐⠈⠀⠀⠀
-    '';
+  config = {
+    preset = {
+      header = ''
+        ⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⢠⣖⣿⢐⡆⠀⠀⠀⠀⠀⠀⠀⡀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⢠⢻⡾⡿⡳⡹⣀⢀⠀⢀⠤⢆⣶⡫⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⣯⣻⡫⡯⣳⢝⡮⣫⢯⡳⣻⢸⣿⣭⢽⡇⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⢸⢯⡺⣭⢙⢮⡳⣝⢮⡳⠝⢮⢏⡯⣚⣽⡇⠀⠀⠀⠀⠀⠀⠀⠀
+        ⣿⣿⣿⣿⣇⣀⣼⡕⠕⢕⣇⣏⠉⠀⡯⣺⢝⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠈⣻⣿⣿⣿⣿⡻⠷⡲⢾⢿⣿⣷⣶⣿⣿⣷⣷⣶⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿⣿⡿⡋⠁⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠈⠙⠻⠿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠟⠋⠁⠀⣠⣴⣾⣟⣥⣤⣤⣄
+        ⠀⠀⠀⠀⠀⠀⡐⣯⣿⣽⡯⣗⢖⣆⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⡟⠉
+        ⠀⠀⠀⠀⠀⣔⢽⡩⣿⡏⡾⣕⢯⢮⣣⠀⠀⢐⢧⢿⣿⣿⣿⣿⣻⠀⠀
+        ⠀⢀⠀⡀⠀⣗⢽⡪⠓⡸⣝⢮⠇⣕⣗⠀⠀⠱⡹⡽⣻⡻⡮⣟⠯⠀⠀
+        ⠨⢒⠂⡂⠨⡺⠕⠯⢐⠯⡺⣝⢑⢕⠠⢰⠨⢄⠨⡹⡚⡮⡳⡱⠁⠀⠀
+        ⠀⡑⢵⠀⡂⠠⠁⠂⠀⢂⠂⢂⣖⢐⠐⡠⡲⠠⢐⢅⠇⡎⠢⠁⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠈⠀⠐⠈⠀⠀⠀
+      '';
 
-    keys = [
-      (mkLuaInline
-        # lua
-        ''
-          function()
-            return {
+      keys = [
+        (mkLuaInline
+          # lua
+          ''
+            function()
+              return {
                 icon = " ",
                 title = "Browse repo",
                 key = "b",
                 action = ":lua Snacks.gitbrowse()",
                 enabled = Snacks.git.get_root() ~= nil,
               }
+            end
+          ''
+        )
+        {
+          icon = " ";
+          key = "r";
+          desc = "Recent Files";
+          action = ":lua Snacks.dashboard.pick('oldfiles')";
+        }
+        {
+          icon = " ";
+          key = "f";
+          desc = "Find File";
+          action = ":lua Snacks.dashboard.pick('files')";
+        }
+        {
+          icon = " ";
+          key = "n";
+          desc = "New File";
+          action = ":ene | startinsert";
+        }
+        {
+          icon = " ";
+          key = "g";
+          desc = "Find Text";
+          action = ":lua Snacks.dashboard.pick('live_grep')";
+        }
+        {
+          icon = " ";
+          key = "c";
+          desc = "Config";
+          action = ":lua Snacks.dashboard.pick('files'; {cwd = '~/.nixos'})";
+        }
+        {
+          icon = " ";
+          key = "s";
+          desc = "Restore Session";
+          section = "session";
+        }
+        {
+          icon = " ";
+          key = "q";
+          desc = "Quit";
+          action = ":qa";
+        }
+      ];
+    };
+
+    sections = [
+      { section = "header"; }
+      (mkLuaInline
+        # lua
+        ''
+          function()
+            local i = 0
+            local lines = {}
+
+            for line in io.lines(${toLua commits}) do
+              i = i + 1
+              lines[i] = line
+            end
+
+            local message = lines[math.random(1, i)]
+            local unquoted = message:gsub('^"', ""):gsub('"$', "")
+            local commit = ('git commit -m "%s"'):format(unquoted)
+
+            return {
+              text = { commit, hl = "SpellRare" },
+              padding = 3,
+              height = 2,
+              align = center,
+            }
           end
         ''
       )
       {
-        icon = " ";
-        key = "r";
-        desc = "Recent Files";
-        action = ":lua Snacks.dashboard.pick('oldfiles')";
+        title = "Projects";
+        section = "projects";
+        icon = " ";
+        indent = 2;
+        padding = 2;
       }
       {
-        icon = " ";
-        key = "f";
-        desc = "Find File";
-        action = ":lua Snacks.dashboard.pick('files')";
+        section = "keys";
+        padding = 2;
       }
-      {
-        icon = " ";
-        key = "n";
-        desc = "New File";
-        action = ":ene | startinsert";
-      }
-      {
-        icon = " ";
-        key = "g";
-        desc = "Find Text";
-        action = ":lua Snacks.dashboard.pick('live_grep')";
-      }
-      {
-        icon = " ";
-        key = "c";
-        desc = "Config";
-        action = ":lua Snacks.dashboard.pick('files'; {cwd = '~/.nixos'})";
-      }
-      {
-        icon = " ";
-        key = "s";
-        desc = "Restore Session";
-        section = "session";
-      }
-      {
-        icon = " ";
-        key = "q";
-        desc = "Quit";
-        action = ":qa";
-      }
+      (mkSections.repo [
+        {
+          icon = " ";
+          title = "Notifications";
+          cmd = ''echo -e "$(${getExe pkgs.gh-notify} -s -a -n5)"'';
+          action = mkLuaInline ''
+            function()
+                vim.ui.open("https://github.com/notifications")
+            end
+          '';
+          key = "n";
+          height = 5;
+          enabled = true;
+          # width = 75 * 2;
+        }
+        {
+          icon = " ";
+          title = "Status";
+          cmd = "git --no-pager diff --stat -B -M -C";
+        }
+        {
+          title = "Graph";
+          icon = " ";
+          cmd = ''echo -e "$(${getExe pkgs.git-graph} --style round --color always --wrap 50 0 8 -f 'oneline')"'';
+          height = 35;
+        }
+      ])
+      { section = "startup"; }
     ];
   };
-
-  sections = [
-    { section = "header"; }
-    (mkLuaInline
-      # lua
-      ''
-        function()
-          local i = 0
-          local lines = {}
-
-          for line in io.lines(${toLua commits}) do
-            i = i + 1
-            lines[i] = line
-          end
-
-          local message = lines[math.random(1, i)]
-          local unquoted = message:gsub('^"', ""):gsub('"$', "")
-          local commit = ('git commit -m "%s"'):format(unquoted)
-
-          return {
-            text = { commit, hl = "SpellRare" },
-            padding = 3,
-            height = 2,
-            align = center,
-          }
-        end
-      ''
-    )
-    {
-      title = "Projects";
-      section = "projects";
-      icon = " ";
-      indent = 2;
-      padding = 2;
-    }
-    {
-      section = "keys";
-      padding = 2;
-    }
-    (mkSections.repo [
-      {
-        icon = " ";
-        title = "Notifications";
-        cmd = ''echo -e "$(${getExe pkgs.gh-notify} -s -a -n5)"'';
-        action = mkLuaInline ''
-          function()
-              vim.ui.open("https://github.com/notifications")
-          end
-        '';
-        key = "n";
-        height = 5;
-        enabled = true;
-        # width = 75 * 2;
-      }
-      {
-        icon = " ";
-        title = "Status";
-        cmd = "git --no-pager diff --stat -B -M -C";
-      }
-      {
-        title = "Graph";
-        icon = " ";
-        cmd = ''echo -e "$(${getExe pkgs.git-graph} --style round --color always --wrap 50 0 8 -f 'oneline')"'';
-        height = 35;
-      }
-    ])
-    { section = "startup"; }
-  ];
 }

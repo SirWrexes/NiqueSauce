@@ -2,7 +2,9 @@
 
 let
   inherit (builtins) concatStringsSep;
+  inherit (lib.attrsets) mapAttrs mapAttrsToList mergeAttrsList;
   inherit (lib.generators) mkLuaInline;
+  inherit (lib.lists) concatLists;
   inherit (lib.strings) readFile;
   inherit (lib.trivial) flip pipe;
 
@@ -21,6 +23,44 @@ let
     "lsp-progress"
     "nvim-tree-integration"
   ];
+
+  snacks =
+    pipe
+      [ "indent" "dashboard" "notifier" ]
+      [
+        (map (name: {
+          ${name} = import (./configs + "/${name}.nix") args;
+        }))
+        mergeAttrsList
+      ];
+
+  configs = mapAttrs (snack: { config, ... }: config) snacks;
+
+  prefixKeysDesc =
+    snack:
+    map (
+      key:
+      key
+      // (
+        if key ? desc then
+          {
+            desc = "Snacks.${snack}: ${key.desc}";
+          }
+        else
+          { }
+      )
+    );
+
+  keys = concatLists (
+    mapAttrsToList (
+      snack:
+      {
+        keys ? [ ],
+        ...
+      }:
+      prefixKeysDesc snack keys
+    ) snacks
+  );
 in
 {
   home.packages = with pkgs; [
@@ -31,6 +71,7 @@ in
     lazygit
   ];
 
+  # TODO: Add `lazygit` and drop lazygit plugin
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
       package = snacks-nvim;
@@ -39,14 +80,11 @@ in
 
       priority = 999;
 
-      opts = {
+      opts = configs // {
         animate.enabled = true;
-        dashboard = import ./configs/dashboard.nix args;
         debug.enabled = true;
         gitbrowse.enable = true;
-        indent.enabled = import ./configs/indent.nix args;
         input.enabled = true;
-        notifier.enabled = true;
         notify.enabled = true;
         quickfile.enabled = true;
         rename.enabled = true;
@@ -60,6 +98,8 @@ in
           ${concatStringsSep "\n" inits}
         end
       '';
+
+      inherit keys;
     }
   ];
 }
