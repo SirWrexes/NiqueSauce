@@ -1,6 +1,5 @@
 { ... }:
 
-# TODO: Rename module into "utils"
 {
   imports = [
     ./auto-pairs.nix
@@ -11,7 +10,6 @@
     ./lazygit.nix
     ./structural-search-and-replace.nix
     ./surround.nix
-    ./toggler.nix
     ./undotree.nix
     ./wakatime.nix
   ];
