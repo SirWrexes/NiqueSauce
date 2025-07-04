@@ -168,7 +168,7 @@ in
         {
           package = pkgs.vimPlugins.nvim-lspconfig;
 
-          priority = 1000;
+          priority = 999;
 
           ft = concatMap (
             {
@@ -182,7 +182,7 @@ in
             mkLuaInline
               # lua
               ''
-                function(_, opts)
+                function()
                   vim.lsp.config('*', ${toLua defaults})
                   ${toLuaConfig' cfg.servers}
                 end

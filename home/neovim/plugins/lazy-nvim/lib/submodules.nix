@@ -300,6 +300,10 @@ rec {
           type = nullOr (listOf str);
           default = null;
         };
+        root_dir = mkOption {
+          type = nullOr (either str luaSnippet);
+          default = null;
+        };
         root_markers = mkOption {
           type = nullOr (listOf (either str (listOf str)));
           default = null;

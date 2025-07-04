@@ -1,5 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
+let
+  inherit (lib.generators) mkLuaInline;
+in
 {
   home.file.defaultStyluaConfig = {
     source = ./stylua.toml;
@@ -14,6 +17,14 @@
   programs.neovim.lazy-nvim.lspconfig.servers.luals = {
     cmd = [ "lua-language-server" ];
     filetypes = [ "lua" ];
+    root_dir =
+      mkLuaInline
+        # lua
+        ''
+          function(bufnr, on_dir)
+            return on_dir(require('lazydev').find_workspace(bufnr))
+          end
+        '';
     settings.Lua = {
       hint.enable = true;
       completion.callSnippet = "Replace";
@@ -24,7 +35,7 @@
     {
       package = lazydev-nvim;
 
-      ft = "lua";
+      lazy = true;
 
       opts = {
         integrations = {
