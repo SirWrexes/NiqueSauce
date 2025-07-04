@@ -12,7 +12,10 @@
 
       event = "VeryLazy";
 
-      config = true;
+      opts = {
+        excluded_filetypes = [ "snacks_dashboard" ];
+        current_only = true;
+      };
     }
     {
       package = cinnamon-nvim;
