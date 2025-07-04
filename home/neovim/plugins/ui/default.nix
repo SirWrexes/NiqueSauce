@@ -10,7 +10,7 @@
     ./windows
 
     ./colours.nix
-    ./greeter.nix
     ./highlight-todos.nix
+    ./noice.nix
   ];
 }
