@@ -19,8 +19,8 @@ vim.o.wrap = false
 vim.o.list = true
 vim.opt.listchars = {
   nbsp = '_',
-  tab = '| ',
+  tab = '󰌒 ',
   trail = '~',
-  extends = '⇨',
-  precedes = '⇦',
+  extends = ' ',
+  precedes = ' ',
 }
