@@ -48,16 +48,28 @@ do
     end,
   })
 
+  local hl_TrailingWhiteSpace = 'TrailingWhiteSpace'
+  local augroup_TrailingWhiteSpaces =
+    vim.api.nvim_create_augroup(hl_TrailingWhiteSpace, { clear = true })
+
   -- Cleanup trailing whitespaces automatically
-  local ws_cleanup_ignore = {
+  local trailing_ignore = {
     'markdown',
     'gitcommit',
   }
 
-  function WhiteSpaceCleanup(opts)
-    if
-      not opts.bang and vim.tbl_contains(ws_cleanup_ignore, vim.bo.filetype)
-    then
+  vim.cmd.match(hl_TrailingWhiteSpace, [[/\s\+$/]])
+
+  vim.api.nvim_create_autocmd('BufWinEnter', {
+    group = augroup_TrailingWhiteSpaces,
+    callback = function()
+      if vim.tbl_contains(trailing_ignore, vim.bo.filetype) then return end
+      vim.opt_local.winhighlight:append { [hl_TrailingWhiteSpace] = 'Error' }
+    end,
+  })
+
+  local function cmd_WhiteSpaceCleanup(opts)
+    if not opts.bang and vim.tbl_contains(trailing_ignore, vim.bo.filetype) then
       return
     end
 
@@ -69,14 +81,14 @@ do
     vim.fn.setreg('/', reg)
   end
 
-  vim.api.nvim_create_user_command('WhiteSpaceCleanup', WhiteSpaceCleanup, {
+  vim.api.nvim_create_user_command('WhiteSpaceCleanup', cmd_WhiteSpaceCleanup, {
     bar = true,
     bang = true,
   })
 
   vim.api.nvim_create_autocmd('BufWritePre', {
-    group = vim.api.nvim_create_augroup('WhiteSpaceCleanup', { clear = true }),
-    callback = WhiteSpaceCleanup,
+    group = augroup_TrailingWhiteSpaces,
+    callback = cmd_WhiteSpaceCleanup,
   })
 
   -- Keep at least 4 lines of content above curor at all times
