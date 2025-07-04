@@ -2,11 +2,18 @@
 
 let
   inherit (builtins) concatStringsSep;
-  inherit (lib.attrsets) mapAttrs mapAttrsToList mergeAttrsList;
+  inherit (lib.attrsets)
+    filterAttrs
+    mapAttrs
+    mapAttrsToList
+    mergeAttrsList
+    ;
   inherit (lib.generators) mkLuaInline;
   inherit (lib.lists) concatLists;
   inherit (lib.strings) readFile;
   inherit (lib.trivial) flip pipe;
+
+  stripNulls = filterAttrs (key: value: value != null);
 
   readInit = flip pipe [
     (name: ./init + "/${name}.lua")
@@ -34,7 +41,27 @@ let
         mergeAttrsList
       ];
 
-  configs = mapAttrs (snack: { config, ... }: config) snacks;
+  configs = stripNulls (
+    mapAttrs (
+      snack:
+      {
+        config ? null,
+        ...
+      }:
+      config
+    ) snacks
+  );
+
+  styles = stripNulls (
+    mapAttrs (
+      snack:
+      {
+        style ? null,
+        ...
+      }:
+      style
+    ) snacks
+  );
 
   prefixKeysDesc =
     snack:
@@ -88,9 +115,10 @@ in
         notify.enabled = true;
         quickfile.enabled = true;
         rename.enabled = true;
-        scroll.enabled = true;
         win.border = "rounded";
-        styles.border = "rounded";
+        styles = styles // {
+          border = "rounded";
+        };
       };
 
       init = mkLuaInline ''

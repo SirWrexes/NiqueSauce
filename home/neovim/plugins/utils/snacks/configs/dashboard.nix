@@ -87,31 +87,46 @@ in
           icon = " ";
           key = "r";
           desc = "Recent Files";
-          action = ":lua Snacks.dashboard.pick('oldfiles')";
+          action = # vim
+            ''
+              :lua Snacks.dashboard.pick('oldfiles')
+            '';
         }
         {
           icon = " ";
           key = "f";
           desc = "Find File";
-          action = ":lua Snacks.dashboard.pick('files')";
+          action = # vim
+            ''
+              :lua Snacks.dashboard.pick('files')
+            '';
         }
         {
           icon = " ";
           key = "n";
           desc = "New File";
-          action = ":ene | startinsert";
+          action = # vim
+            ''
+              :ene | startinsert
+            '';
         }
         {
           icon = " ";
           key = "g";
           desc = "Find Text";
-          action = ":lua Snacks.dashboard.pick('live_grep')";
+          action = # vim
+            ''
+              :lua Snacks.dashboard.pick('live_grep')
+            '';
         }
         {
-          icon = " ";
+          icon = " ";
           key = "c";
-          desc = "Config";
-          action = ":lua Snacks.dashboard.pick('files'; {cwd = '~/.nixos'})";
+          desc = "Configs";
+          action = # vim
+            ''
+              :lua Snacks.dashboard.pick('files'; { cwd = '~/.nixos' })
+            '';
         }
         {
           icon = " ";
@@ -170,16 +185,12 @@ in
         {
           icon = " ";
           title = "Notifications";
-          cmd = ''echo -e "$(${getExe pkgs.gh-notify} -s -a -n5)"'';
-          action = mkLuaInline ''
-            function()
-                vim.ui.open("https://github.com/notifications")
-            end
-          '';
+          cmd = ''echo -e "$(${getExe pkgs.gh-notify} -s -n5)"'';
+          action = # vim
+            ":lua vim.ui.open('https://github.com/notifications')";
           key = "n";
           height = 5;
           enabled = true;
-          # width = 75 * 2;
         }
         {
           icon = " ";
@@ -189,11 +200,16 @@ in
         {
           title = "Graph";
           icon = " ";
-          cmd = ''echo -e "$(${getExe pkgs.git-graph} --style round --color always --wrap 50 0 8 -f 'oneline')"'';
+          cmd = # sh
+            ''echo -e "$(${getExe pkgs.git-graph} --style round --color always --wrap 50 0 8 -f 'oneline')"'';
           height = 35;
         }
       ])
       { section = "startup"; }
     ];
+  };
+
+  style = {
+    wo.wrap = true;
   };
 }
