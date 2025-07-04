@@ -20,8 +20,6 @@
     {
       package = cinnamon-nvim;
 
-      enabled = false;
-
       opts = {
         keymaps = {
           basic = true;
@@ -51,9 +49,12 @@
         "^"
         "g#"
         "g*"
+        "gd"
         "gg"
+        "gi"
         "gj"
         "gk"
+        "gr"
         "h"
         "j"
         "k"
@@ -79,6 +80,8 @@
         "<Up>"
         "<Down>"
         "<Down>"
+        "<Left>"
+        "<Right>"
         "<Left>"
         "<Right>"
         # B
