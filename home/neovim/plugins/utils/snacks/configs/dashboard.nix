@@ -162,7 +162,7 @@ in
             local commit = ('git commit -m "%s"'):format(unquoted)
 
             return {
-              text = { commit, hl = "SpellRare" },
+              text = { commit, hl = "SpellBad" },
               padding = 3,
               height = 2,
               align = center,
@@ -207,9 +207,5 @@ in
       ])
       { section = "startup"; }
     ];
-  };
-
-  style = {
-    wo.wrap = true;
   };
 }
