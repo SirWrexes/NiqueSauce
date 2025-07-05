@@ -297,6 +297,10 @@ rec {
             Automatically attach LSP to buffers with its corresponding filetypes (defined in `.filetypes`).
           '';
         };
+        before_init = mkOption {
+          type = nullOr luaSnippet;
+          default = null;
+        };
         cmd = mkOption {
           type = nullOr (listOf str);
           default = null;

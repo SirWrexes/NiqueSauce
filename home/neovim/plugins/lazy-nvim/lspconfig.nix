@@ -9,6 +9,12 @@ let
   lazylib = import ./lib { inherit lib; };
 
   inherit (lib.attrsets) attrNames;
+  inherit (lazylib.attrsets) stripNulls;
+  inherit (lib.generators) mkLuaInline;
+  inherit (lib.strings) concatStringsSep;
+  inherit (lib.trivial) flip pipe;
+
+  inherit (lazylib) toLua;
 
   cfg = config.programs.neovim.lazy-nvim.lspconfig;
 in
@@ -20,7 +26,7 @@ in
       inherit (lazylib.modules) toModule;
       inherit (lazylib.options) mkOption;
       inherit (lazylib.types) isLuaInline;
-      inherit (lazylib.submodules) LspConfig;
+      inherit (lazylib.submodules) LazyKey LspConfig;
 
       applyToDefaults =
         name: source:
@@ -60,6 +66,23 @@ in
           '';
         };
 
+      filetypes =
+        with types;
+        mkOption {
+          type = nullOr (listOf str);
+          default = [ ];
+          description = ''
+            Extra filetypes to load `lspconfig` for without necessarilly setting a server config for them.
+          '';
+        };
+
+      keys =
+        with types;
+        mkOption {
+          type = nullOr (listOf LazyKey);
+          default = [ ];
+        };
+
       servers =
         with types;
         mkOption {
@@ -91,18 +114,51 @@ in
                 }
               '';
         };
+
+      luaDefaults =
+        let
+          callOnAttachHook =
+            hook:
+            if hook._isModule then
+              ''require(${toLua hook.requirePath})(client, buffer)''
+            else
+              ''(${hook.expr})(client, buffer)'';
+        in
+        with types;
+        mkOption {
+          type = submodule {
+            options = {
+              on_attach = mkOption { type = luaSnippet; };
+              capabilities = mkOption { type = luaSnippet; };
+              root_markers = mkOption { type = listOf (either str (listOf str)); };
+            };
+          };
+          readOnly = true;
+          default =
+            with cfg;
+            stripNulls {
+              capabilities =
+                if defaultCapabilities != null && defaultCapabilities._isModule then
+                  mkLuaInline ''require(${toLua defaultCapabilities.requirePath})''
+                else
+                  defaultCapabilities;
+              on_attach = mkLuaInline ''
+                function(client, buffer)
+                  ${pipe defaultOnAttach [
+                    (map callOnAttachHook)
+                    (concatStringsSep "\n")
+                  ]}
+                end
+              '';
+              root_markers = [ ".git" ];
+            };
+        };
     };
 
   config =
     let
       inherit (lib.attrsets) attrValues mapAttrs mergeAttrsList;
-      inherit (lib.generators) mkLuaInline;
       inherit (lib.lists) concatMap filter length;
-      inherit (lib.strings) concatStringsSep;
-      inherit (lib.trivial) flip pipe;
-
-      inherit (lazylib) toLua;
-      inherit (lazylib.attrsets) stripNulls;
 
       modules =
         with cfg;
@@ -116,32 +172,6 @@ in
           else
             [ ]
         );
-
-      callOnAttachHook =
-        hook:
-        if hook._isModule then
-          ''require(${toLua hook.requirePath})(client, buffer)''
-        else
-          ''(${hook.expr})(client, buffer)'';
-
-      defaults =
-        with cfg;
-        stripNulls {
-          capabilities =
-            if defaultCapabilities != null && defaultCapabilities._isModule then
-              mkLuaInline ''require(${toLua defaultCapabilities.requirePath})''
-            else
-              defaultCapabilities;
-          on_attach = mkLuaInline ''
-            function(client, buffer)
-              ${pipe defaultOnAttach [
-                (map callOnAttachHook)
-                (concatStringsSep "\n")
-              ]}
-            end
-          '';
-          root_markers = [ ".git" ];
-        };
 
       cleanupConfig = flip pipe [
         (flip removeAttrs [ "enable" ])
@@ -170,23 +200,27 @@ in
 
           priority = 999;
 
-          ft = concatMap (
-            {
-              filetypes ? [ ],
-              ...
-            }:
-            filetypes
-          ) (attrValues cfg.servers);
+          ft =
+            cfg.filetypes
+            ++ (concatMap (
+              {
+                filetypes ? [ ],
+                ...
+              }:
+              filetypes
+            ) (attrValues cfg.servers));
 
           config =
             mkLuaInline
               # lua
               ''
                 function()
-                  vim.lsp.config('*', ${toLua defaults})
+                  vim.lsp.config('*', ${toLua cfg.luaDefaults})
                   ${toLuaConfig' cfg.servers}
                 end
               '';
+
+          inherit (cfg) keys;
         }
       ];
     };

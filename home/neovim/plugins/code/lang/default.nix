@@ -2,8 +2,9 @@
 
 {
   imports = [
-    ./nix
+    ./javascript
     ./lua
+    ./nix
 
     ./python.nix
   ];

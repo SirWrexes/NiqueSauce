@@ -10,16 +10,14 @@ let
 
   inherit (lazylib) types toLua;
   inherit (lazylib.options) mkOption mkPackageOption mkDescribedEnableOption;
-  inherit (lazylib.modules) generatedModulesDir;
 
   cfg = config.programs.neovim.lazy-nvim;
-
-  fullModulesDirPath = "~/.config/nvim/${generatedModulesDir}";
 in
 {
   imports = [
     ./lazy-spec.nix
     ./lspconfig.nix
+    ./none-ls.nix
   ];
 
   options.programs.neovim.lazy-nvim = {
