@@ -23,13 +23,17 @@
 
     cmd = [ "nixd" ];
 
+    cmd_env = {
+      NIXPKGS_ALLOW_UNFREE = if osConfig.nixpkgs.config.allowUnfree then 1 else 0;
+    };
+
     settings.nixd =
       let
         inherit (builtins) toFile toJSON;
         inherit (osConfig.networking) hostName;
 
         wrapper =
-          toFile "expr.nix" # nix
+          toFile "nixd-expr.nix" # nix
             ''
               import ${./findFlake.nix} {
                 self = ${toJSON root};
