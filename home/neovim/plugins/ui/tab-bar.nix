@@ -1,6 +1,7 @@
 { pkgs, lib, ... }:
 
 let
+  inherit (builtins) concatLists genList;
   inherit (lib.generators) mkLuaInline;
   toLua = lib.generators.toLua { };
 in
@@ -142,7 +143,18 @@ in
             rhs = "BufferLineMoveNext";
             desc = "Move right";
           }
-        ];
+        ]
+        ++ (genList (
+          i:
+          let
+            tabnr = toString (i + 1);
+          in
+          {
+            lhs = "<M-${tabnr}";
+            rhs = "BufferLineGoToBuffer ${tabnr}";
+            desc = "Go to tab ${tabnr}";
+          }
+        ) 8);
     }
   ];
 }
