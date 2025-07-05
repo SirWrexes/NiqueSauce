@@ -184,7 +184,7 @@ in
       (mkSections.repo [
         {
           icon = " ";
-          title = "Notifications";
+          title = "GitHub Notifications";
           cmd = ''echo -e "$(${getExe pkgs.gh-notify} -s -n5)"'';
           action = # vim
             ":lua vim.ui.open('https://github.com/notifications')";
@@ -202,7 +202,7 @@ in
           icon = " ";
           cmd = # sh
             ''echo -e "$(${getExe pkgs.git-graph} --style round --color always --wrap 50 0 8 -f 'oneline')"'';
-          height = 35;
+          height = 15;
         }
       ])
       { section = "startup"; }
