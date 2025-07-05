@@ -1,6 +1,7 @@
 { pkgs, lib, ... }:
 
 let
+  inherit (lib.generators) mkLuaInline;
   toLua = lib.generators.toLua { };
 in
 {
@@ -8,11 +9,35 @@ in
     {
       package = trouble-nvim;
 
-      cmd = "Trouble";
+      event = "LspAttach";
+
+      config =
+        mkLuaInline
+          # lua
+          ''
+            function(_, opts)
+              require('trouble').setup(opts)
+
+              vim.diagnostic.config {
+                virtual_text = true,
+                float = { source = "always" },
+                update_in_insert = true,
+                severity_sort = true,
+                signs = {
+                  text = {
+                    [vim.diagnostic.severity.ERROR] = ' ',
+                    [vim.diagnostic.severity.WARN ] = ' ',
+                    [vim.diagnostic.severity.INFO ] = ' ',
+                    [vim.diagnostic.severity.HINT ] = ' ',
+                  },
+                },
+              }
+            end
+          '';
 
       keys =
         let
-          Trouble = mode: "<Cmd>lua require('trouble').toggle(${toLua mode})<Cr>";
+          Trouble = mode: mkLuaInline ''function() require('trouble').toggle(${toLua mode}) end'';
         in
         [
           {

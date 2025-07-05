@@ -2,8 +2,6 @@ function()
   -- PERF: we don't need this lualine require madness 🤷
   require('lualine_require').require = require
 
-  vim.o.laststatus = vim.g.lualine_laststatus
-
   local theme = require 'lualine.themes.auto'
   local BufferLineTab = vim.api.nvim_get_hl(0, { name = "BufferLineTab" })
   local function to_hex(num) return ("%06x"):format(num) end
@@ -56,6 +54,30 @@ function()
           separator = '',
           padding = { left = 1, right = 0 },
         },
+        {
+          'filename',
+          file_status = true,
+          newfile_status = true,
+          path = 1,
+        },
+        {
+          '%w',
+          cond = function()
+            return vim.wo.previewwindow
+          end,
+        },
+        {
+          '%r',
+          cond = function()
+            return vim.bo.readonly
+          end,
+        },
+        {
+          '%q',
+          cond = function()
+            return vim.bo.buftype == 'quickfix'
+          end,
+        },
       },
 
       lualine_x = {
@@ -94,7 +116,7 @@ function()
         end,
       },
     },
-    extensions = { 'nvim-tree', 'toggleterm', 'trouble', 'man', 'lazy', 'fzf' },
+    extensions = { 'toggleterm', 'trouble', 'man', 'lazy', 'fzf' },
   }
 
   -- do not add trouble symbols if aerial is enabled
