@@ -2,19 +2,56 @@
 
 let
   inherit (lib.generators) mkLuaInline;
-  inherit (lib.strings) concatStringsSep;
   inherit (lib.trivial) flip;
   inherit (config.programs.neovim.lazy-nvim) toLua;
 in
 {
-  config = {
-    sources = {
-      explorer.layout = {
-        preset = "dropdown";
-        preview = true;
+  config =
+    let
+      ctrlp =
+        mkLuaInline
+          # lua
+          ''
+            {
+              preview = true,
+              layout = {
+                backdrop = false,
+                row = 1,
+                width = 0.4,
+                min_width = 80,
+                height = 0.4,
+                border = 'none',
+                box = 'vertical',
+                {
+                  win = 'input',
+                  height = 1,
+                  border = 'rounded',
+                  title = '{title} {live} {flags}',
+                  title_pos = 'center',
+                },
+                { win = 'list', border = 'rounded' },
+                { win = 'preview', title = '{preview}', border = 'rounded' },
+              },
+            }
+          '';
+    in
+    {
+      sources = rec {
+        explorer = {
+          auto_close = true;
+          layout.preset = "default";
+          formatters.severity.pos = "right";
+          matcher.fuzzy = true;
+        };
+        commands.layout = ctrlp;
+        command_history.layout = ctrlp;
+        keymaps.layout = ctrlp;
+        treesitter.layout = {
+          preset = "dropdown";
+          preview = true;
+        };
       };
     };
-  };
 
   keys =
     let
@@ -36,41 +73,37 @@ in
     in
     map setModeAndLeader [
       {
-        lhs = "fhe";
-        rhs = picker "help";
-        desc = "Vim help";
-      }
-      {
-        lhs = "fhi";
-        rhs = picker "highlights";
-        desc = "Highlight groups";
-      }
-      {
-        lhs = "f:";
+        lhs = "::";
         rhs = picker "commands";
         desc = "Vim commands";
       }
       {
-        lhs = "fkm";
+        lhs = ":?";
+        rhs = picker "command_history";
+        desc = "Command history";
+      }
+      {
+        lhs = ":h";
+        rhs = picker "help";
+        desc = "Vim help";
+      }
+      {
+        lhs = ":H";
+        rhs = picker "highlights";
+        desc = "Highlight groups";
+      }
+      {
+        lhs = "fk";
         rhs = picker "keymaps";
         desc = "Keymaps";
       }
       {
-        lhs = "flz";
-        rhs = picker "lazy";
-        desc = "Lazy plugin specs";
-      }
-      {
-        lhs = "fe";
-        rhs = picker' "explorer" {
-          auto_close = true;
-          formatters.severity.pos = "left";
-          matcher.fuzzy = true;
-        };
+        lhs = "e";
+        rhs = picker "explorer";
         desc = "Explorer";
       }
       {
-        lhs = "ff";
+        lhs = "<leader>";
         rhs = picker "smart";
         desc = "Buffers and files";
       }
@@ -95,7 +128,7 @@ in
         desc = "Git grep";
       }
       {
-        lhs = "fws";
+        lhs = "fs";
         rhs = picker "worskapce_symbols";
         desc = "Workspace symbols";
       }
@@ -105,7 +138,7 @@ in
         desc = "Treesitter tags";
       }
       {
-        lhs = "fln";
+        lhs = "fl";
         rhs = picker "lines";
         desc = "Buffer lines";
       }
@@ -113,11 +146,6 @@ in
         lhs = "fcs";
         rhs = picker "colorschemes";
         desc = "Colour schemes";
-      }
-      {
-        lhs = "f?";
-        rhs = picker "command_history";
-        desc = "Command history";
       }
       {
         lhs = "d";
