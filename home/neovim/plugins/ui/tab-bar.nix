@@ -47,16 +47,7 @@ in
               end
             '';
         offsets = [
-          {
-            filetype = "NvimTree";
-            text = " ";
-            highlight = "directory";
-            text_align = "right";
-            separator = true;
-          }
-          {
-            filetype = "snacks_layout_box";
-          }
+          { filetype = "snacks_layout_box"; }
         ];
         get_element_icon =
           mkLuaInline

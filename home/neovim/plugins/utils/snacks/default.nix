@@ -1,7 +1,7 @@
 { pkgs, lib, ... }@args:
 
 let
-  inherit (builtins) concatStringsSep;
+  inherit (builtins) typeOf concatStringsSep;
   inherit (lib.attrsets)
     filterAttrs
     mapAttrs
@@ -13,28 +13,12 @@ let
   inherit (lib.strings) readFile;
   inherit (lib.trivial) flip pipe;
 
-  stripNulls = filterAttrs (key: value: value != null);
-
-  readInit = flip pipe [
-    (name: ./init + "/${name}.lua")
-    readFile
-    (code: ''
-      do
-      ${code}
-      end
-    '')
-  ];
-
-  inits = map readInit [
-    "debug-globals"
-    "nvim-tree-integration"
-  ];
-
   snacks =
     pipe
       [
         "indent"
         "dashboard"
+        "picker"
       ]
       [
         (map (name: {
@@ -43,27 +27,43 @@ let
         mergeAttrsList
       ];
 
-  configs = stripNulls (
-    mapAttrs (
-      snack:
-      {
-        config ? null,
-        ...
-      }:
-      config
-    ) snacks
+  readRootInit = flip pipe [
+    (name: ./init + "/${name}.lua")
+    readFile
+  ];
+
+  readRootInits = map readRootInit;
+
+  readSnackInit = init: if typeOf init == "path" then readFile init else init.expr;
+
+  readSnacksInit = flip pipe [
+    (filterAttrs (snack: configs: configs ? init))
+    (mapAttrsToList (snack: { init, ... }: init))
+    (map readSnackInit)
+  ];
+
+  wrapInit = code: ''
+    do
+    ${code}
+    end
+  '';
+
+  inits = map wrapInit (
+    (readRootInits [
+      "debug-globals"
+    ])
+    ++ (readSnacksInit snacks)
   );
 
-  styles = stripNulls (
-    mapAttrs (
-      snack:
-      {
-        style ? null,
-        ...
-      }:
-      style
-    ) snacks
-  );
+  configs = pipe snacks [
+    (filterAttrs (snack: configs: configs ? config))
+    (mapAttrs (snack: { config, ... }: config))
+  ];
+
+  styles = pipe snacks [
+    (filterAttrs (snack: configs: configs ? style))
+    (mapAttrs (snack: { config, ... }: config))
+  ];
 
   prefixKeysDesc =
     snack:
@@ -73,23 +73,18 @@ let
       // (
         if key ? desc then
           {
-            desc = "Snacks.${snack}: ${key.desc}";
+            desc = "${snack}  ${key.desc}";
           }
         else
           { }
       )
     );
 
-  keys = concatLists (
-    mapAttrsToList (
-      snack:
-      {
-        keys ? [ ],
-        ...
-      }:
-      prefixKeysDesc snack keys
-    ) snacks
-  );
+  keys = pipe snacks [
+    (filterAttrs (snack: configs: configs ? keys))
+    (mapAttrsToList (snack: { keys, ... }: prefixKeysDesc snack keys))
+    concatLists
+  ];
 in
 {
   home.packages = with pkgs; [
@@ -117,9 +112,11 @@ in
 
       opts = configs // {
         animate.enabled = true;
+        bufdelete.enabled = true;
         debug.enabled = true;
-        gitbrowse.enable = true;
+        gitbrowse.enabled = true;
         input.enabled = true;
+        layout.enabled = true;
         quickfile.enabled = true;
         rename.enabled = true;
         win.border = "rounded";

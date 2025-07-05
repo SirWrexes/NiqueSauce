@@ -3,7 +3,6 @@
 {
   imports = [
     ./buffers
-    ./file-tree
     ./status-line
     ./terminal
     ./windows

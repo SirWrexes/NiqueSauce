@@ -12,7 +12,6 @@
     ./lazygit.nix
     ./structural-search-and-replace.nix
     ./surround.nix
-    ./telescope.nix
     ./undotree.nix
     ./wakatime.nix
   ];

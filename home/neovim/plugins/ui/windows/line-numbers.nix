@@ -25,7 +25,6 @@ in
           ''
             function()
               local ignored_fts = {
-                "NvimTree",
                 "toggleterm",
                 "dap-repl",
               }
