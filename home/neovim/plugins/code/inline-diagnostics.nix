@@ -11,9 +11,15 @@ in
 
       cmd = "Trouble";
 
+      opts = {
+        modes = {
+          diagnostics.auto_open = true;
+        };
+      };
+
       keys =
         let
-          Trouble = cmd: "<Cmd>Trouble ${cmd}<Cr>";
+          Trouble = cmd: "<Cmd>lua require('trouble.command').execute(${toLua cmd})<Cr>";
         in
         [
           {
