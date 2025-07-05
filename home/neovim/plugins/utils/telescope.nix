@@ -105,7 +105,7 @@ in
             desc = "Quickfix list";
           }
           {
-            lhs = "<leafer>fts";
+            lhs = "<leader>fts";
             rhs = tele "treesitter";
             desc = "TreeSitter tags";
           }
