@@ -9,6 +9,7 @@
     ./code-actions-menu.nix
     ./comment.nix
     ./formatting.nix
+    ./inline-diagnostics.nix
     ./tree-hopper.nix
     ./tree-sitter.nix
   ];
