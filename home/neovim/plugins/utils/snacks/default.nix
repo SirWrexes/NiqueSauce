@@ -27,13 +27,15 @@ let
 
   inits = map readInit [
     "debug-globals"
-    "lsp-progress"
     "nvim-tree-integration"
   ];
 
   snacks =
     pipe
-      [ "indent" "dashboard" "notifier" ]
+      [
+        "indent"
+        "dashboard"
+      ]
       [
         (map (name: {
           ${name} = import (./configs + "/${name}.nix") args;
@@ -103,6 +105,12 @@ in
     {
       package = snacks-nvim;
 
+      dependencies = [
+        {
+          package = nvim-notify;
+        }
+      ];
+
       lazy = false;
 
       priority = 999;
@@ -112,7 +120,6 @@ in
         debug.enabled = true;
         gitbrowse.enable = true;
         input.enabled = true;
-        notify.enabled = true;
         quickfile.enabled = true;
         rename.enabled = true;
         win.border = "rounded";
