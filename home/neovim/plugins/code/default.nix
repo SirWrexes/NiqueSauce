@@ -14,15 +14,17 @@
     ./tree-sitter.nix
   ];
 
-  programs.neovim.extraLuaConfig = ''
+  programs.neovim.extraLuaConfig =
+    # lua
+    ''
 
-    vim.keymap.set(
-      {'n', 'i'},
-      '<M-i>',
-      function()
-        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-      end
-    );
+      vim.keymap.set(
+        {'n', 'i'},
+        '<M-i>',
+        function()
+          vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+        end
+      );
 
-  '';
+    '';
 }
