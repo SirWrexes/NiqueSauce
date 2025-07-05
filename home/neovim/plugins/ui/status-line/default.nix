@@ -8,14 +8,17 @@
 
 let
   inherit (lib.generators) mkLuaInline;
-  inherit (config.programs.neovim.lazy-nvim) toLua;
 in
 {
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
       package = lualine-nvim;
 
-      dependencies = [ { package = pkgs'.vimPlugins.noice-nvim; } ];
+      dependencies = [
+        { package = pkgs'.vimPlugins.noice-nvim; }
+        { package = snacks-nvim; }
+        { package = bufferline-nvim; }
+      ];
 
       event = "VeryLazy";
 

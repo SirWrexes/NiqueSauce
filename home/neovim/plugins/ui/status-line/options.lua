@@ -4,12 +4,24 @@ function()
 
   vim.o.laststatus = vim.g.lualine_laststatus
 
+  local theme = require 'lualine.themes.auto'
+  local BufferLineTab = vim.api.nvim_get_hl(0, { name = "BufferLineTab" })
+  local function to_hex(num) return ("%06x"):format(num) end
+  local cx = {bg = to_hex(BufferLineTab.bg), fg = to_hex(BufferLineTab.fg)}
+
+  for _, mode in ipairs {
+    'normal', 'insert', 'replace', 'visual', 'command'
+  } do
+    theme[mode].c = { bg = cx.bg, fg = cx.fg }
+    theme[mode].x = { bg = cx.bg, fg = cx.fg }
+  end
+
   local opts = {
     options = {
-      theme = 'auto',
+      theme = theme,
       globalstatus = vim.o.laststatus == 3,
       disabled_filetypes = {
-        statusline = { 'dashboard', 'snacks_dashboard' },
+        statusline = { 'dashboard', 'snacks_dashboard', 'snacks_layout_box' },
       },
     },
     sections = {

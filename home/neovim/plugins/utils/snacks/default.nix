@@ -101,9 +101,7 @@ in
       package = snacks-nvim;
 
       dependencies = [
-        {
-          package = nvim-notify;
-        }
+        { package = nvim-notify; }
       ];
 
       lazy = false;
