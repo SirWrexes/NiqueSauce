@@ -42,7 +42,12 @@ rec {
         noremap = mkOption {
           type = nullOr bool;
           default = true;
-          description = "Disable recursive mapping (see https://neovim.io/doc/user/map.html#recursive_mapping).";
+          description = "Disable recursive mapping (see `:h recursive_mapping`).";
+        };
+        expr = mkOption {
+          type = nullOr bool;
+          default = false;
+          description = "Enable expression mapping (see `:h map-expression`).";
         };
       };
     };
@@ -294,6 +299,10 @@ rec {
         };
         cmd = mkOption {
           type = nullOr (listOf str);
+          default = null;
+        };
+        cmd_env = mkOption {
+          type = nullOr (attrsOf (either str number));
           default = null;
         };
         filetypes = mkOption {
