@@ -7,60 +7,46 @@
 
 let
   inherit (lib.generators) mkLuaInline;
+  inherit (config.programs.neovim.lazy-nvim) toLua;
 in
 {
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
       package = actions-preview-nvim;
 
-      dependencies = [ { package = telescope-nvim; } ];
+      dependencies = [ { package = snacks-nvim; } ];
 
       opts = {
         diff = {
           algorithm = "patience";
           ignore_whitespace = true;
         };
-        telescope = {
-          winblen = 10;
-          sorting_strategy = "ascending";
-          layout_strategy = "vertical";
-          layout_config = {
-            width = 0.8;
-            height = 0.9;
-            prompt_position = "top";
-            preview_cutoff = 20;
-            preview_height = mkLuaInline ''function(_,_, maxln) return maxln - 15 end'';
-          };
-        };
+        backends = [ "snacks" ];
       };
-
-      config = mkLuaInline ''
-        function(_, opts)
-          opts.telescope = require("telescope.themes").get_dropdown(opts.telescope)
-          require("actions-preview").setup(opts)
-        end
-      '';
 
       keys =
         let
-          actions = ''require("actions-preview").code_actions'';
+          actions' = opts: ''
+            <Cmd>lua require("actions-preview").code_actions(${if opts != null then toLua opts else ""})<Cr>
+          '';
+
+          actions = actions' null;
+
           mode = [
             "n"
             "x"
           ];
         in
-        [
+        map (key: key // { inherit mode; }) [
           {
             lhs = "<leader>a";
-            rhs = mkLuaInline ''function() ${actions}() end'';
-            desc = "Code actions for current line";
-            inherit mode;
+            rhs = actions;
+            desc = "Current line";
           }
           {
             lhs = "<leader>A";
-            rhs = mkLuaInline ''function() ${actions}({context = {only = "source"}}) end'';
-            desc = "Code actions for current buffer";
-            inherit mode;
+            rhs = actions' { context.only = "source"; };
+            desc = "Current buffer";
           }
         ];
     }
