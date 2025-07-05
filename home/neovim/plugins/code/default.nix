@@ -8,8 +8,8 @@
 
     ./code-actions-menu.nix
     ./comment.nix
+    ./diagnostics.nix
     ./formatting.nix
-    ./inline-diagnostics.nix
     ./tree-hopper.nix
     ./tree-sitter.nix
   ];
@@ -27,4 +27,17 @@
       );
 
     '';
+
+  programs.neovim.lazy-nvim.lspconfig.keys = [
+    {
+      lhs = "<S-k>";
+      rhs = "<Cmd>lua vim.lsp.buf.hover()<Cr>";
+      desc = "Show LSP hover";
+    }
+    {
+      lhs = "<C-k>";
+      rhs = "<Cmd>lua vim.lsp.buf.signature_help()<Cr>";
+      desc = "Show signature help";
+    }
+  ];
 }

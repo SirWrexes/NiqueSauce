@@ -1,7 +1,6 @@
 { pkgs, lib, ... }:
 
 let
-  inherit (lib.generators) mkLuaInline;
   toLua = lib.generators.toLua { };
 in
 {
@@ -11,50 +10,49 @@ in
 
       cmd = "Trouble";
 
-      opts = {
-        modes = {
-          diagnostics.auto_open = true;
-        };
-      };
-
       keys =
         let
-          Trouble = cmd: "<Cmd>lua require('trouble.command').execute(${toLua cmd})<Cr>";
+          Trouble = mode: "<Cmd>lua require('trouble').toggle(${toLua mode})<Cr>";
         in
         [
           {
             lhs = "<leader>xx";
-            rhs = Trouble "diagnostics toggle";
+            rhs = Trouble "diagnostics";
             desc = "Diagnostics";
           }
           {
             lhs = "<leader>xX";
-            rhs = Trouble "diagnostics toggler filter .buf=0";
+            rhs = Trouble {
+              source = "diagnostics";
+              filter.buf = 0;
+            };
             desc = "Diagnostics (buffer)";
           }
           {
-            lhs = "<leader>xX";
-            rhs = Trouble "diagnostics toggle filter.buf=0";
-            desc = "Buffer Diagnostics (Trouble)";
-          }
-          {
             lhs = "<leader>cs";
-            rhs = Trouble "symbols toggle focus=false";
+            rhs = Trouble {
+              source = "symbols";
+              foucus = false;
+            };
             desc = "Symbols (Trouble)";
           }
           {
             lhs = "<leader>cl";
-            rhs = Trouble "lsp toggle focus=false win.position=right";
+            rhs = Trouble {
+              source = "lsp";
+              focus = false;
+              win.position = "right";
+            };
             desc = "LSP Definitions / references / ... (Trouble)";
           }
           {
             lhs = "<leader>xL";
-            rhs = Trouble "loclist toggle";
+            rhs = Trouble "loclist";
             desc = "Location List (Trouble)";
           }
           {
             lhs = "<leader>xQ";
-            rhs = Trouble "qflist toggle";
+            rhs = Trouble "qflist";
             desc = "Quickfix List (Trouble)";
           }
         ];
