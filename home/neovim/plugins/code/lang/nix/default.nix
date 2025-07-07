@@ -24,7 +24,7 @@
     cmd = [ "nixd" ];
 
     cmd_env = {
-      NIXPKGS_ALLOW_UNFREE = if osConfig.nixpkgs.config.allowUnfree then 1 else 0;
+      NIXPKGS_ALLOW_UNFREE = if osConfig.nixpkgs.config.allowUnfree or false then 1 else 0;
     };
 
     settings.nixd =
