@@ -19,31 +19,65 @@
       home-manager,
       nix-colors,
       ...
-    }@inputs:
+    }:
     let
-      system = "x86_64-linux";
+      inherit (nixpkgs) lib;
+      inherit (lib.attrsets) mergeAttrsList;
+
       pkgs' = nixpkgs-unstable.legacyPackages.${system};
+
+      system = "x86_64-linux";
+
+      getHostDefaults =
+        name:
+        import ./system/hosts/configure.nix {
+          inherit name;
+          flake = ./.;
+        };
+
+      getHostConfig = name: ./hosts + "/${name}/default.nix";
+
+      getHostModules =
+        name:
+        map (x: x name) [
+          getHostDefaults
+          getHostConfig
+        ];
+
+      getHostOsConfig =
+        {
+          modules ? [ ],
+          ...
+        }@globals:
+        name: {
+          ${name} = lib.nixosSystem (
+            globals
+            // {
+              modules = getHostModules name ++ modules;
+            }
+          );
+        };
+
+      forHosts = hosts: globals: mergeAttrsList (map (getHostOsConfig globals) hosts);
     in
     {
-      nixosConfigurations = {
-        houston = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit nix-colors pkgs'; };
-          modules = [
-            ./configuration.nix
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "old";
-              home-manager.users.wrexes = ./home;
-              home-manager.extraSpecialArgs = {
-                inherit nix-colors pkgs';
-                root = self;
-              };
-            }
-          ];
-        };
+      nixosConfigurations = forHosts [ "houston" "voyager" ] {
+        inherit system;
+        specialArgs = { inherit pkgs' nix-colors; };
+        modules = [
+          ./system
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "old";
+            home-manager.users.wrexes = ./home;
+            home-manager.extraSpecialArgs = {
+              inherit nix-colors pkgs';
+              root = self;
+            };
+          }
+        ];
       };
     };
 }
