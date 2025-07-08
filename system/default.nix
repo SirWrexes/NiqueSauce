@@ -10,7 +10,6 @@
     ./boot.nix
     ./locale.nix
     ./shell.nix
-    # ./services
     ./networking.nix
     ./graphics.nix
     ./desktop.nix
@@ -66,17 +65,13 @@
 
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
-    jq
+    bat
     fd
     git
-    bat
-    ripgrep
+    jq
     kitty
-
-    ffmpeg-full
-    pavucontrol
-
     nixfmt-rfc-style
+    ripgrep
   ];
 
   # Define a user account
@@ -90,8 +85,7 @@
       "wheel"
     ];
     packages = with pkgs; [
-      # CLI tool for all colour things
-      pastel
+      pastel # CLI tool for all colour things
     ];
   };
 

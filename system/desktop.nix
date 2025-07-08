@@ -27,11 +27,9 @@ in
     };
 
     environment.systemPackages = with pkgs; [
-      # GUI Audio control
+      ffmpeg-full
+      helvum # Patchbay for pipewire
       pavucontrol
-
-      # Patchbay for pipewire
-      helvum
     ];
   };
 }
