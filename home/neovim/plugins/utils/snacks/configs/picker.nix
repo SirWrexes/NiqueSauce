@@ -113,7 +113,7 @@ in
         desc = "Buffers";
       }
       {
-        lhs = "f/";
+        lhs = "/";
         rhs = picker "grep";
         desc = "Grep";
       }
