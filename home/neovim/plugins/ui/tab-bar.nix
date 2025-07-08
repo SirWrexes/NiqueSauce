@@ -105,6 +105,11 @@ in
             desc = "Delete non-pinned buffers";
           }
           {
+            lhs = "<leader>bo";
+            rhs = "BufferLineCloseOthers";
+            desc = "Delete all but current buffers";
+          }
+          {
             lhs = "<leader>br";
             rhs = "BufferLineCloseRight";
             desc = "Delete buffers to the right";

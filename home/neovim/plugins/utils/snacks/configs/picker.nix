@@ -36,12 +36,15 @@ in
           '';
     in
     {
-      sources = rec {
+      sources = {
         explorer = {
-          auto_close = true;
-          layout.preset = "default";
-          formatters.severity.pos = "right";
           matcher.fuzzy = true;
+          formatters.severity.pos = "right";
+          layout.preset = "sidebar";
+          layout.layout = {
+            position = "right";
+            width = 0.2;
+          };
         };
         commands.layout = ctrlp;
         command_history.layout = ctrlp;

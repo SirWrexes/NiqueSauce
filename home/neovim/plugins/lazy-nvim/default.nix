@@ -143,38 +143,39 @@ in
         # Keep the empty lines above and below the lua code to prevent the statements
         # sticking to other lines during concatenation.
         programs.neovim.extraLuaConfig =
-          # lua
-          ''
+          lib.modules.mkAfter
+            # lua
+            ''
 
-            if not vim.g.lazy_did_setup then
-              vim.opt.rtp:prepend("${cfg.package}")
+              if not vim.g.lazy_did_setup then
+                vim.opt.rtp:prepend("${cfg.package}")
 
-              vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
-                silent = true,
-                noremap = true,
-              })
+                vim.keymap.set('n', ${toLua cfg.dashboardKeymap},'<cmd>Lazy<cr>', {
+                  silent = true,
+                  noremap = true,
+                })
 
-              require("lazy").setup(${
-                toLua {
-                  # Spec definition and plugin package install is defined in laz-spec.nix
-                  inherit (cfg) spec;
+                require("lazy").setup(${
+                  toLua {
+                    # Spec definition and plugin package install is defined in laz-spec.nix
+                    inherit (cfg) spec;
 
-                  # Disable automatic plugin updates.
-                  # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
-                  checker.enable = false;
+                    # Disable automatic plugin updates.
+                    # Plugins will be installed in the Nix store, as opposed to the usual Git flavoured way Lazy.nvim normally uses.
+                    checker.enable = false;
 
-                  # Prevent Lazy.nvim from installing missing plugins.
-                  # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
-                  install.missing = true;
+                    # Prevent Lazy.nvim from installing missing plugins.
+                    # Since we're bypassing the Git installation of plugins, auto-installation shouldn't do anything.
+                    install.missing = true;
 
-                  lazy = cfg.lazyByDefault;
-                  cond = cfg.defaultEnablePredicate;
+                    lazy = cfg.lazyByDefault;
+                    cond = cfg.defaultEnablePredicate;
 
-                  ui.border = "rounded";
-                }
-              })
-            end
+                    ui.border = "rounded";
+                  }
+                })
+              end
 
-          '';
+            '';
       };
 }

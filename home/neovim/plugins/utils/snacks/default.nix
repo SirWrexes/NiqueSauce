@@ -111,6 +111,7 @@ in
       opts = configs // {
         animate.enabled = true;
         bufdelete.enabled = true;
+        explorer.replace_netrw = true;
         debug.enabled = true;
         gitbrowse.enabled = true;
         input.enabled = true;
