@@ -5,6 +5,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs";
 
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -18,6 +21,7 @@
       nixpkgs-unstable,
       home-manager,
       nix-colors,
+      sops-nix,
       ...
     }:
     let
@@ -63,18 +67,21 @@
     {
       nixosConfigurations = forHosts [ "houston" "voyager" ] {
         inherit system;
-        specialArgs = { inherit pkgs' nix-colors; };
+        specialArgs = { inherit pkgs' sops-nix nix-colors; };
         modules = [
           ./system
+          sops-nix.nixosModules.sops
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "old";
-            home-manager.users.wrexes = ./home;
-            home-manager.extraSpecialArgs = {
-              inherit nix-colors pkgs';
-              root = self;
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              backupFileExtension = "old";
+              users.wrexes = ./home;
+              extraSpecialArgs = {
+                inherit pkgs' sops-nix nix-colors;
+                root = self;
+              };
             };
           }
         ];

@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   nix-colors,
   ...
@@ -13,23 +12,17 @@ in
   imports = [
     nix-colors.homeManagerModules.default
 
-    # CLI
     ./shell
     ./git
     ./neovim
-
-    # GUI
     ./hyprland
     ./discord.nix
     ./browser
-
     ./media
   ];
 
   programs.home-manager.enable = true;
 
-  # Credi: Fahrenheit by fcpg
-  # https://github.com/fcpg/vim-fahrenheit
   colorScheme = nix-colors.colorSchemes.black-metal-bathory;
 
   home = {

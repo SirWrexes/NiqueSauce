@@ -5,3 +5,6 @@ result-*
 # Ignore automatically generated direnv output
 .direnv
 .nvimlog
+
+# 🕵
+./secrets/age/private.txt

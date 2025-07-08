@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (lib) types mkIf;
+  inherit (lib) types mkIf mkMerge;
   inherit (lib.options) mkOption;
 
   host = config.hostConfig;
@@ -27,13 +27,15 @@ in
       };
   };
 
-  config = {
-    users.defaultUserShell = defaultShell;
+  config = mkMerge [
+    {
+      users.defaultUserShell = defaultShell;
+    }
 
-    programs.fish.enable = mkIfFish true;
-    programs.bash.interactiveShellInit =
-      mkIfFish
-        #sh
+    (mkIfFish {
+      programs.fish.enable = true;
+      programs.bash.interactiveShellInit =
+        # sh
         ''
           if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING}  && "$LOGNAME" = "wrexes" ]]
           then
@@ -41,5 +43,6 @@ in
             exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
           fi
         '';
-  };
+    })
+  ];
 }

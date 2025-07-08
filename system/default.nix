@@ -9,6 +9,7 @@
 
     ./boot.nix
     ./locale.nix
+    ./secrets.nix
     ./shell.nix
     ./networking.nix
     ./graphics.nix

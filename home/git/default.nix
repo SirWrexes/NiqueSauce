@@ -1,10 +1,15 @@
-{ config, pkgs, ... }:
+{
+  osConfig,
+  config,
+  pkgs,
+  ...
+}:
 
 let
+  # TODO: Configure theme from nix-color
   deltaOptions = {
     dark = true;
     side-by-side = true;
-    # TODO: Configure theme from nix-color
   };
 in
 {
@@ -19,23 +24,22 @@ in
     userEmail = "ludofernandez@msn.com";
     extraConfig = {
       init.defaultBranch = "main";
-      core.sshCommand = "ssh -i ~/.ssh/id_ed25519";
+      core.sshCommand = "ssh -i ${osConfig.sops.secrets."ssh/private".path}";
       color.ui = true;
     };
   };
 
   programs.git.aliases =
-    with config.colorScheme.palette;
     let
       inherit (pkgs.lib) strings;
       inherit (pkgs.lib.meta) getExe getExe';
 
-      pager = "${getExe pkgs.bat}"; # TODO: Make an option
-      grep = "${getExe pkgs.ripgrep}"; # TODO: Make an option
+      pager = "${getExe pkgs.bat}";
+      grep = "${getExe pkgs.ripgrep}";
       git = "${getExe pkgs.git}";
       wc = "${getExe' pkgs.coreutils-full "wc"}";
 
-      format = {
+      format = with config.colorScheme.palette; {
         options =
           format:
           strings.concatStringsSep " " [

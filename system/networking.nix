@@ -6,14 +6,19 @@ let
   inherit (lib.strings) toLower;
 
   host = config.hostConfig;
+
+  lowercaseStr =
+    with types;
+    (addCheck str (name: toLower name == name))
+    // {
+      description = "lowercase string";
+    };
 in
 {
   options.hostConfig = {
-    name =
-      with types;
-      mkOption {
-        type = addCheck str (name: toLower name == name);
-      };
+    name = mkOption {
+      type = lowercaseStr;
+    };
   };
 
   config = {
