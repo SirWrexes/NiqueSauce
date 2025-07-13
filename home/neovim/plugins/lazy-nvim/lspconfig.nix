@@ -158,7 +158,13 @@ in
   config =
     let
       inherit (lib.attrsets) attrValues mapAttrs mergeAttrsList;
-      inherit (lib.lists) concatMap filter length;
+      inherit (lib.lists)
+        concatMap
+        filter
+        length
+        optional
+        optionals
+        ;
 
       modules =
         with cfg;
@@ -181,10 +187,16 @@ in
       toLuaConfig =
         name:
         { enable, ... }@config:
-        ''
-          vim.lsp.config(${toLua name}, ${toLua (cleanupConfig config)})
-          ${if enable then "vim.lsp.enable(${toLua name})" else "-- Auto attach disabled"}
-        '';
+        let
+          finalConfig = cleanupConfig config;
+          isNotEmpty = length (attrNames finalConfig) != 0;
+          luaConfig = toLua finalConfig;
+          luaName = toLua name;
+        in
+        concatStringsSep "\n" (
+          (optional isNotEmpty ''vim.lsp.config(${luaName}), ${luaConfig}'')
+          ++ (optional enable ''vim.lsp.enable(${luaName})'')
+        );
 
       toLuaConfig' = flip pipe [
         (mapAttrs toLuaConfig)
@@ -202,13 +214,9 @@ in
 
           ft =
             cfg.filetypes
-            ++ (concatMap (
-              {
-                filetypes ? [ ],
-                ...
-              }:
-              filetypes
-            ) (attrValues cfg.servers));
+            ++ (concatMap ({ filetypes, ... }: optionals (filetypes != null) filetypes) (
+              attrValues cfg.servers
+            ));
 
           config =
             mkLuaInline
