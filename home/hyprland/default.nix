@@ -23,6 +23,8 @@
 
     "$mod" = "SUPER";
 
+    general.layout = "dwindle";
+
     bind = import ./binds/keyboard.nix { inherit pkgs lib; };
     bindm = import ./binds/mouse.nix;
     input = import ./input/keyboard.nix // import ./input/mouse.nix;
