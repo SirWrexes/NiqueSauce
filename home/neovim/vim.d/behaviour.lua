@@ -156,4 +156,9 @@ do
   --
   -- This is the thing that `nowait` ignores when creating mappings.
   vim.opt.timeoutlen = 750
+
+  -- Disable wrapping text at X columns (80 by default).
+  -- Code formatters do it for you, and I've found NeoVim's aggressive wrapping
+  -- policy often screws up comments and stuff.
+  vim.o.textwidth = 0
 end
