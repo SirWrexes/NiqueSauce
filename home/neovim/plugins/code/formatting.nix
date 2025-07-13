@@ -2,7 +2,7 @@
 
 let
   inherit (lib.trivial) pipe;
-  inherit (lib.attrsets) mergeAttrsList;
+  inherit (lib.attrsets) genAttrs mergeAttrsList;
   inherit (lib.generators) mkLuaInline;
 in
 {
@@ -18,27 +18,33 @@ in
 
       opts = {
         formatters_by_ft =
+          let
+            prettier = (
+              genAttrs
+                [
+                  "css"
+                  "html"
+                  "javascript"
+                  "javascriptreact"
+                  "json"
+                  "markdown"
+                  "scss"
+                  "typescript"
+                  "typescriptreact"
+                  "yaml"
+                ]
+                (ft: [
+                  "prettierd"
+                  "prettier"
+                ])
+            );
+          in
           {
             lua = [ "stylua" ];
             nix = [ "nixfmt" ];
           }
-          // (pipe
-            [
-              "javascript"
-              "typescript"
-              "javascriptreact"
-              "typescriptreact"
-            ]
-            [
-              (map (ft: {
-                ${ft} = [
-                  "prettierd"
-                  "prettier"
-                ];
-              }))
-              mergeAttrsList
-            ]
-          );
+          // prettier;
+
         format_on_save = {
           lsp_format = "never";
         };
