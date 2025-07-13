@@ -1,11 +1,23 @@
 { pkgs, lib, ... }:
 
 let
-  inherit (lib.trivial) pipe;
-  inherit (lib.attrsets) genAttrs mergeAttrsList;
+  inherit (lib.attrsets) genAttrs;
   inherit (lib.generators) mkLuaInline;
 in
 {
+  # TODO: Implement an init that walks up in search of a JS root marker
+  #       Then, depending on the package manager in use, check that either
+  #       `prettierd` or `prettier` is runnable from local packages
+  #       else fall back to globally installed `prettierd`.
+  home.packages = with pkgs; [
+    prettierd # The cooler prettier
+
+    # Go stuff
+    golines # Break long lines automatically
+    gci # Import organiser
+    gofumpt # Actual formatter, stricter than gofmt
+  ];
+
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
       package = conform-nvim;
@@ -18,32 +30,35 @@ in
 
       opts = {
         formatters_by_ft =
-          let
-            prettier = (
-              genAttrs
-                [
-                  "css"
-                  "html"
-                  "javascript"
-                  "javascriptreact"
-                  "json"
-                  "markdown"
-                  "scss"
-                  "typescript"
-                  "typescriptreact"
-                  "yaml"
-                ]
-                (ft: [
-                  "prettierd"
-                  "prettier"
-                ])
-            );
-          in
-          {
+          genAttrs
+            [
+              "css"
+              "html"
+              "javascript"
+              "javascriptreact"
+              "json"
+              "markdown"
+              "scss"
+              "typescript"
+              "typescriptreact"
+              "yaml"
+            ]
+            (ft: [
+              "prettierd"
+            ])
+          // {
             lua = [ "stylua" ];
             nix = [ "nixfmt" ];
-          }
-          // prettier;
+            go = [
+              "golines"
+              "gci"
+              "gofumpt"
+            ];
+          };
+
+        formatters = {
+          gofumpt.prepend_args = [ "-extra" ];
+        };
 
         format_on_save = {
           lsp_format = "never";
