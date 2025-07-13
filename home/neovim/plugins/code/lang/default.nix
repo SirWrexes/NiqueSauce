@@ -8,5 +8,6 @@
     ./lua
     ./nix
     ./python
+    ./toml
   ];
 }
