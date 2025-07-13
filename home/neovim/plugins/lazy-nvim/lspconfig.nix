@@ -194,7 +194,7 @@ in
           luaName = toLua name;
         in
         concatStringsSep "\n" (
-          (optional isNotEmpty ''vim.lsp.config(${luaName}), ${luaConfig}'')
+          (optional isNotEmpty ''vim.lsp.config(${luaName}, ${luaConfig})'')
           ++ (optional enable ''vim.lsp.enable(${luaName})'')
         );
 
