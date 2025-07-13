@@ -110,8 +110,6 @@ in
       }
     ];
 
-  programs.neovim.lazy-nvim.lspconfig = { inherit filetypes; };
-
   programs.neovim.lazy-nvim.none-ls.sources =
     map (source: mkLuaInline ''require('none-ls.${source}.eslint_d')'')
       [

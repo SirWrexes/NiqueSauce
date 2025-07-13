@@ -66,16 +66,6 @@ in
           '';
         };
 
-      filetypes =
-        with types;
-        mkOption {
-          type = nullOr (listOf str);
-          default = [ ];
-          description = ''
-            Extra filetypes to load `lspconfig` for without necessarilly setting a server config for them.
-          '';
-        };
-
       keys =
         with types;
         mkOption {
@@ -158,13 +148,7 @@ in
   config =
     let
       inherit (lib.attrsets) attrValues mapAttrs mergeAttrsList;
-      inherit (lib.lists)
-        concatMap
-        filter
-        length
-        optional
-        optionals
-        ;
+      inherit (lib.lists) filter length optional;
 
       modules =
         with cfg;
@@ -210,13 +194,9 @@ in
         {
           package = pkgs.vimPlugins.nvim-lspconfig;
 
-          priority = 999;
+          lazy = false;
 
-          ft =
-            cfg.filetypes
-            ++ (concatMap ({ filetypes, ... }: optionals (filetypes != null) filetypes) (
-              attrValues cfg.servers
-            ));
+          priority = 999;
 
           config =
             mkLuaInline
