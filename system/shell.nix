@@ -30,6 +30,7 @@ in
   config = mkMerge [
     {
       users.defaultUserShell = defaultShell;
+      programs.direnv.enable = true;
     }
 
     (mkIfFish {
