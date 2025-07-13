@@ -2,6 +2,9 @@
 
 let
   inherit (lib.generators) mkLuaInline;
+
+  server = pkgs.lua-language-server;
+  exe = lib.meta.getExe server;
 in
 {
   home.file.defaultStyluaConfig = {
@@ -10,12 +13,12 @@ in
   };
 
   home.packages = with pkgs; [
-    lua-language-server
+    server
     stylua
   ];
 
   programs.neovim.lazy-nvim.lspconfig.servers.luals = {
-    cmd = [ "lua-language-server" ];
+    cmd = [ exe ];
     filetypes = [ "lua" ];
     root_markers = [
       [

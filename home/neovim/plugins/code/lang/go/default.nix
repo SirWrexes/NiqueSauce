@@ -1,14 +1,13 @@
 { pkgs, lib, ... }:
 
 let
-  cmd = [
-    (lib.meta.getExe pkgs.gopls)
-  ];
+  server = pkgs.gopls;
+  exe = lib.meta.getExe server;
 in
 {
-  home.packages = with pkgs; [ gopls ];
+  home.packages = [ server ];
 
   programs.neovim.lazy-nvim.lspconfig.servers.gopls = {
-    inherit cmd;
+    cmd = [ exe ];
   };
 }

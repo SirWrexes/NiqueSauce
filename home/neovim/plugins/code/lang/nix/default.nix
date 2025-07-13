@@ -2,13 +2,16 @@
   root,
   osConfig,
   pkgs,
+  lib,
   ...
 }:
 
+let
+  server = pkgs.nixd;
+  exe = lib.meta.getExe server;
+in
 {
-  home.packages = with pkgs; [
-    nixd
-  ];
+  home.packages = [ server ];
 
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
     {
@@ -21,7 +24,7 @@
   programs.neovim.lazy-nvim.lspconfig.servers.nixd = {
     filetypes = [ "nix" ];
 
-    cmd = [ "nixd" ];
+    cmd = [ exe ];
 
     cmd_env = {
       NIXPKGS_ALLOW_UNFREE = if osConfig.nixpkgs.config.allowUnfree or false then 1 else 0;
