@@ -2,10 +2,10 @@
 
 {
   imports = [
+    ./go
     ./javascript
     ./lua
     ./nix
-
-    ./python.nix
+    ./python
   ];
 }
