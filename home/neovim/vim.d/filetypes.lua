@@ -42,6 +42,8 @@ do
   vim.filetype.add {
     extension = {
       ['rasi'] = 'rasi',
+      ['htmx'] = 'html',
+      ['gohtml'] = 'html',
     },
     pattern = {
       ['.*/hypr/.*%.conf'] = 'hyprlang',
