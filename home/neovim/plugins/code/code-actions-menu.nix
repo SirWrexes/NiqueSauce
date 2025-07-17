@@ -1,12 +1,10 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }:
 
 let
-  inherit (lib.generators) mkLuaInline;
   inherit (config.programs.neovim.lazy-nvim) toLua;
 in
 {
@@ -27,7 +25,7 @@ in
       keys =
         let
           actions' = opts: ''
-            <Cmd>lua require("actions-preview").code_actions(${if opts != null then toLua opts else ""})<Cr>
+            <Cmd>lua require("actions-preview").code_actions(${toLua opts})<Cr>
           '';
 
           actions = actions' null;

@@ -117,5 +117,18 @@ in
             }
           ];
       }
+      {
+        package = nvim-ts-autotag;
+
+        dependencies = [ { package = nvim-treesitter; } ];
+
+        ft = [
+          "html"
+          "javascriptreact"
+          "typescripreact"
+        ];
+
+        config = true;
+      }
     ];
 }
