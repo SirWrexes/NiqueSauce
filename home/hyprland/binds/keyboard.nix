@@ -53,6 +53,18 @@ workspaces
   # Toggle pseudo-fullscreen
   "$mod SHIFT, F, fullscreen, 1"
 
+  # Close the currently focused window
+  # Note that despite the name, this uses graceful quitting, and doesn't actually kill the process.
+  "$mod, ESCAPE, killactive"
+
+  # Control volume with fn keys
+  "$mod, XF86AudioMute,        exec, ${getExe pavucontrol}"
+  ",     XF86AudioMute,        exec, ${getExe' wireplumber "wpctl"} set-mute toggle"
+  ",     XF86AudioRaiseVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+  ",     XF86AudioLowerVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+  "CTRL, XF86AudioRaiseVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 1%+"
+  "CTRL, XF86AudioLowerVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 1%-"
+
   # Move focus with hjkl
   "$mod, H, movefocus, l"
   "$mod, J, movefocus, d"
@@ -65,15 +77,20 @@ workspaces
   "$mod SHIFT, K, movewindow, u"
   "$mod SHIFT, L, movewindow, r"
 
-  # Close the currently focused window
-  # Note that despite the name, this uses graceful quitting, and doesn't actually kill the process.
-  "$mod, ESCAPE, killactive"
-
-  # Control volume with fn keys
-  "$mod, XF86AudioMute,        exec, ${getExe pavucontrol}"
-  ",     XF86AudioMute,        exec, ${getExe' wireplumber "wpctl"} set-mute toggle"
-  ",     XF86AudioRaiseVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%+"
-  ",     XF86AudioLowerVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-  "CTRL, XF86AudioRaiseVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 1%+"
-  "CTRL, XF86AudioLowerVolume, exec, ${getExe' wireplumber "wpctl"} set-volume @DEFAULT_AUDIO_SINK@ 1%-"
+  # Group management
+  ''
+    $mod, G, submap, window_groups
+    submap = window_groups
+  ''
+  "$mod, T, togglegroup"
+  "$mod, H, moveintogroup, l"
+  "$mod, J, moveintogroup, d"
+  "$mod, K, moveintogroup, u"
+  "$mod, L, moveintogroup, r"
+  "$mod,       TAB, changegroupactive, f"
+  "$mod SHIFT, TAB, changegroupactive, b"
+  ''
+    $mod, G, submap, reset
+    submap = reset
+  ''
 ])
