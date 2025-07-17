@@ -46,7 +46,7 @@ in
 
                   # Ignore "missing" snippets
                   # Without this setting, unless you've defined custom Coq
-                  # snippets, you'll get a message saying
+                  # snippets, you'll get a message saying:
                   # ⚠️  No compatible snippets found, try updating `coq.artifacts`
                   clients.snippets.warn = [ "outdated" ];
                 }

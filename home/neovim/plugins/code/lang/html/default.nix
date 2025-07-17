@@ -1,13 +1,17 @@
 { pkgs, lib, ... }:
 
 let
-  server = pkgs.superhtml;
-  exe = lib.meta.getExe server;
+  server.html = pkgs.superhtml;
+  exe.html = lib.meta.getExe server.html;
+
+  server.htmx = pkgs.htmx-lsp;
+  exe.htmx = lib.meta.getExe server.htmx;
 in
 {
-  home.packages = [ server ];
+  home.packages = lib.attrsets.attrValues server;
 
-  programs.neovim.lazy-nvim.lspconfig.servers.superhtml = {
-    cmd = [ exe ];
+  programs.neovim.lazy-nvim.lspconfig.servers = {
+    superhtml.cmd = [ exe.html ];
+    htmx.cmd = [ exe.htmx ];
   };
 }

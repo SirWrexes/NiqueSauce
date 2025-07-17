@@ -67,6 +67,12 @@ in
         opts =
           let
             options = {
+              # FIXME: Low prio: Getting the path directly seems to cause a
+              # rewrite of this config on any rebuild with a change to anything
+              # in the flake due to how the hashing and dependency rules work.
+              # There's probably a way to prevent that and only update this conf
+              # when the given ./prettierrc.yaml changes—or other stuff in this
+              # file, of course.
               before_init = mkLuaInline ''function() vim.fn.setenv("PRETTIERD_DEFAULT_CONFIG", "${toString ./prettierrc.yaml}") end'';
               on_attach =
                 mkLuaInline
