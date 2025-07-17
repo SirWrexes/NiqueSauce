@@ -22,7 +22,7 @@ let
     "tty"
   ];
 
-  mkVidia = mkIf (graphics == "nvidia");
+  mkNVidia = mkIf (graphics == "nvidia");
   mkGUI = mkIf (graphics != "tty");
 in
 {
@@ -37,7 +37,7 @@ in
 
   config = mkMerge [
     (mkGUI { hardware.graphics.enable = true; })
-    (mkVidia {
+    (mkNVidia {
       nixpkgs.config.allowUnfree = true;
       nixpkgs.config.nvidia.acceptLicence = true;
       services.xserver.videoDrivers = [ "nvidia" ];
