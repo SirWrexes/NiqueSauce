@@ -11,7 +11,10 @@ in
   home.packages = lib.attrsets.attrValues server;
 
   programs.neovim.lazy-nvim.lspconfig.servers = {
-    superhtml.cmd = [ exe.html ];
+    superhtml.cmd = [
+      exe.html
+      "lsp"
+    ];
     htmx.cmd = [ exe.htmx ];
   };
 }
