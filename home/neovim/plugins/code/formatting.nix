@@ -3,6 +3,7 @@
 let
   inherit (lib.attrsets) genAttrs;
   inherit (lib.generators) mkLuaInline;
+  inherit (lib.meta) getExe;
 in
 {
   # TODO: Implement an init that walks up in search of a JS root marker
@@ -33,7 +34,7 @@ in
           genAttrs
             [
               "css"
-              "html"
+              # "html"
               "javascript"
               "javascriptreact"
               "json"
@@ -54,10 +55,18 @@ in
               "gci"
               "gofumpt"
             ];
+            html = [ "superhtml" ];
           };
 
         formatters = {
           gofumpt.prepend_args = [ "-extra" ];
+          superhtml = {
+            command = getExe pkgs.superhtml;
+            args = [
+              "fmt"
+              "--stdin"
+            ];
+          };
         };
 
         format_on_save = {
