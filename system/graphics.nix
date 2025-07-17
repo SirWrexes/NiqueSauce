@@ -7,13 +7,14 @@
 let
   inherit (lib)
     types
+    mkForce
     mkIf
     mkMerge
     ;
   inherit (lib.options) mkOption;
   inherit (lib.lists) head;
 
-  graphics = config.hostConfig.graphics;
+  cfg = config.hostConfig;
 
   backends = [
     "nouveau"
@@ -22,8 +23,8 @@ let
     "tty"
   ];
 
-  mkNVidia = mkIf (graphics == "nvidia");
-  mkGUI = mkIf (graphics != "tty");
+  mkNVidia = mkIf (cfg.graphics == "nvidia");
+  mkGUI = mkIf cfg.hasGUI;
 in
 {
   options.hostConfig = {
@@ -33,10 +34,20 @@ in
         type = enum backends;
         default = head backends;
       };
+
+    hasGUI =
+      with types;
+      mkOption {
+        type = bool;
+        readOnly = true;
+      };
   };
 
   config = mkMerge [
+    { hostConfig.hasGUI = mkForce (cfg.graphics != "tty"); }
+
     (mkGUI { hardware.graphics.enable = true; })
+
     (mkNVidia {
       nixpkgs.config.allowUnfree = true;
       nixpkgs.config.nvidia.acceptLicence = true;

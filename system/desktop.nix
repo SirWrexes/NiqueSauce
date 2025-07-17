@@ -5,13 +5,8 @@
   ...
 }:
 
-let
-  inherit (lib) mkIf;
-
-  graphical = config.hostConfig.graphics != "tty";
-in
 {
-  config = mkIf graphical {
+  config = lib.mkIf config.hostConfig.hasGUI {
     programs.hyprland = {
       enable = true;
       withUWSM = true;

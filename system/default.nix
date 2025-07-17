@@ -15,6 +15,8 @@
     ./graphics.nix
     ./desktop.nix
     ./gaming.nix
+
+    ./programs
   ];
 
   nix.settings.download-buffer-size = 5242880000;
