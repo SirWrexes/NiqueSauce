@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [
@@ -6,6 +6,7 @@
   ];
 
   hostConfig = {
+    flakeRoot = "$HOME/.nixos";
     graphics = "nvidia";
     boot.displayResolution = "3440x1440";
     shell = pkgs: pkgs.fish;

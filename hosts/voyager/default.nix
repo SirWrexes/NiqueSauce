@@ -6,6 +6,7 @@
   ];
 
   hostConfig = {
+    flakeRoot = "$XDG_CONFIG_HOME/nixos";
     boot.displayResolution = "1920x1080";
     shell = pkgs: pkgs.fish;
   };
