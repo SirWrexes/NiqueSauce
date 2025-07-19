@@ -1,13 +1,11 @@
 {
   config,
-  pkgs,
   lib,
   ...
 }:
 
 let
   inherit (lib.strings) concatStringsSep;
-  inherit (lib.meta) getExe;
 in
 {
   programs.tofi.enable = true;
@@ -31,8 +29,12 @@ in
     fuzzy-match = true;
   };
 
-  # TODO: Monkey patch `hyprland` module to accept merging key settings
-  # wayland.windowManager.hyprland.settings.bind =
-  #   # hyprlang
-  #   "$mod, space, exec, ${getExe config.programs.tofi.package}";
+  # Ensure that newly installed desktop apps appear in drun mode
+  home.activation.flush-tofi-drun-cache =
+    lib.hm.dag.entryAfter [ "writeBoundary" ]
+      # sh
+      ''
+        tofi_cache=${config.xdg.cacheHome}/tofi-drun
+        [[ -f "$tofi_cache" ]] && rm "$tofi_cache"
+      '';
 }
