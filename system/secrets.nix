@@ -45,6 +45,5 @@ in
     } // sshConfig;
   };
 
-  # TODO: Uncomment this when I'm sure sops works
-  # users.users.wrexes.hashedPasswordFile = config.sops.secrets.${password}.path;
+  users.users.wrexes.hashedPasswordFile = config.sops.secrets.${password}.path;
 }
