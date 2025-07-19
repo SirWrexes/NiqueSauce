@@ -1,11 +1,13 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }:
 
 let
-  inherit (config.programs.neovim.lazy-nvim) toLua;
+  inherit (lib.generators) mkLuaInline toLua;
+  toLua' = toLua { multiline = false; };
 in
 {
   programs.neovim.lazy-nvim.plugins = with pkgs.vimPlugins; [
@@ -24,9 +26,15 @@ in
 
       keys =
         let
-          actions' = opts: ''
-            <Cmd>lua require("actions-preview").code_actions(${toLua opts})<Cr>
-          '';
+          actions' =
+            opts:
+            mkLuaInline
+              # lua
+              ''
+                function()
+                  require("actions-preview").code_actions(${toLua' opts})
+                end
+              '';
 
           actions = actions' null;
 
