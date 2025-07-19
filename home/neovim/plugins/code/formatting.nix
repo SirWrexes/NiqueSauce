@@ -38,6 +38,7 @@ in
               "javascript"
               "javascriptreact"
               "json"
+              "jsonc"
               "markdown"
               "scss"
               "typescript"
