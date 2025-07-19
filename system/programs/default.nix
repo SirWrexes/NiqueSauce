@@ -30,8 +30,9 @@ in
   };
 
   imports = [
-    ./figma.nix
-    ./gimp.nix
+    ./figma
+    ./kitty
+    ./gimp
   ];
 
   config = {

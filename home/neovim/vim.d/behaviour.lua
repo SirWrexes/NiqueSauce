@@ -1,4 +1,7 @@
 do
+  -- Didn't really know where else to put this
+  vim.o.guifont = 'FiraCode Nerd Font'
+
   -- Enforce end of line character to follow Unix standard.
   -- Git does this pre-commit by default anyway.
   vim.o.fileformats = 'unix'
